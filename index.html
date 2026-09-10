@@ -130,6 +130,13 @@
   .close-btn{margin-top:14px;width:100%;background:transparent;border:1px solid rgba(200,153,47,.4);
     color:var(--parchment-dim);padding:9px;border-radius:4px;font-size:12.5px;cursor:pointer;}
 
+  .text-link{margin-top:14px;background:none;border:none;color:var(--parchment-dim);
+    font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px;}
+  .sc-label{font-size:11.5px;color:var(--parchment-dim);margin-bottom:5px;text-align:left;}
+  .sc-area{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(200,153,47,.3);border-radius:4px;
+    color:var(--parchment);font-size:11px;font-family:monospace;padding:8px;resize:none;box-sizing:border-box;}
+  .sc-msg{min-height:18px;font-size:12px;color:var(--gold-bright);margin-top:8px;}
+
   #waveTag .stagename{font-size:10.5px;color:var(--gold);letter-spacing:1px;margin-bottom:1px;}
 
   .merit-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(200,153,47,.14);
@@ -215,6 +222,7 @@
       <button class="banner-btn" id="goStageBtn">選 擇 關 卡</button>
       <button class="banner-btn ghost" id="homeShopBtn">校 場 強 化</button>
     </div>
+    <button class="text-link" id="saveCodeBtn">匯出／匯入存檔</button>
   </div></div>
 
   <div id="stageScreen" class="overlay hidden"><div class="overlay-inner">
@@ -248,6 +256,18 @@
       <div class="gacha-result" id="gachaResult">尚未抽選</div>
       <div class="gacha-btn-row"><button class="banner-btn" id="gachaDrawBtn">抽選（5 令）</button></div>
       <button class="close-btn" data-close="gacha">返回戰場</button>
+    </div>
+    <div class="panel" id="saveCodePanel" style="display:none;">
+      <h2>存檔代碼</h2>
+      <div class="sub">複製代碼即可在其他裝置貼上還原進度，純本機運作，不會自動同步</div>
+      <div class="sc-label">目前存檔（複製這段）</div>
+      <textarea id="saveCodeOut" class="sc-area" rows="3" readonly></textarea>
+      <button class="close-btn" id="copySaveCodeBtn">複 製 代 碼</button>
+      <div class="sc-label" style="margin-top:14px;">貼上代碼並匯入</div>
+      <textarea id="saveCodeIn" class="sc-area" rows="3" placeholder="貼在這裡…"></textarea>
+      <button class="banner-btn" id="importSaveCodeBtn" style="margin-top:10px;">匯 入</button>
+      <div class="sc-msg" id="saveCodeMsg"></div>
+      <button class="close-btn" data-close="savecode">返回</button>
     </div>
   </div>
 </div>
@@ -299,6 +319,13 @@ const gachaPanel=document.getElementById('gachaPanel');
 const upgradeList=document.getElementById('upgradeList');
 const gachaResult=document.getElementById('gachaResult');
 const gachaDrawBtn=document.getElementById('gachaDrawBtn');
+const saveCodeBtn=document.getElementById('saveCodeBtn');
+const saveCodePanel=document.getElementById('saveCodePanel');
+const saveCodeOut=document.getElementById('saveCodeOut');
+const saveCodeIn=document.getElementById('saveCodeIn');
+const copySaveCodeBtn=document.getElementById('copySaveCodeBtn');
+const importSaveCodeBtn=document.getElementById('importSaveCodeBtn');
+const saveCodeMsg=document.getElementById('saveCodeMsg');
 
 // ===================== Canvas sizing =====================
 let W=0,H=0,DPR=1,SCALE=1;
@@ -418,6 +445,20 @@ let prepTimer=0, spawnQueue=[], spawnTimer=0;
 let rallyCharges=2, rallyTimer=0;
 let uid=1, elapsed=0, bossDefeated=false, lastTs=0;
 let dragging=null; // {source:{type,index|row,col}, unit, x, y}
+let revealFx=null; // {key, t, dur} - original "general debut" reveal card
+const GENERAL_REVEAL={
+  zhaoyun:{name:'趙雲',title:'一身是膽・常山趙子龍',color:'#6fa8dc'},
+  huangzhong:{name:'黃忠',title:'老當益壯・百步穿楊',color:'#9aa83a'},
+  zhangfei:{name:'張飛',title:'萬人之敵・長坂怒吼',color:'#c0392b'},
+  machao:{name:'馬超',title:'錦馬超・西涼神威',color:'#b8c4d0'},
+  guanyu:{name:'關羽',title:'義薄雲天・威震華夏',color:'#3c8a5e'},
+  liubei:{name:'劉備',title:'仁德之主・親征三軍',color:'#e8bc4e'},
+  fivetigers:{name:'五虎上將',title:'五虎齊聚・威震天下',color:'#e8bc4e'}
+};
+function showGeneralReveal(key){
+  if(!GENERAL_REVEAL[key]) return;
+  revealFx={key, t:0, dur: key==='fivetigers'?3.0:2.3};
+}
 let runMeritGain=0;
 
 let upgrades={
@@ -627,7 +668,7 @@ function tryMerge(a,b){
   const nu=makeUnit(typeKey, a.level);
   if(!a.evolved){
     if(a.level<4){ nu.level=a.level+1; }
-    else { nu.evolved=true; nu.star=1; nu.level=4; }
+    else { nu.evolved=true; nu.star=1; nu.level=4; showGeneralReveal(UNIT_TYPES[typeKey].general.key); }
   } else {
     nu.evolved=true; nu.star=Math.min(3,a.star+1); nu.level=4;
   }
@@ -736,6 +777,7 @@ function triggerFiveTigersFusion(){
   burst(c.x,c.y,'#e8bc4e',28,190*SCALE,.7,4*SCALE);
   shakeFx(7*SCALE,0.3);
   showAlert('五虎上將・合體出陣！');
+  showGeneralReveal('fivetigers');
   fusionBanner.classList.remove('show');
 }
 fusionBanner.addEventListener('click',()=>{
@@ -920,6 +962,7 @@ function update(dt){
   if(flashTime>0) flashTime-=dt;
   if(rallyTimer>0){ rallyTimer-=dt; if(rallyTimer<=0) updateRallyUI(); }
   fusionBanner.classList.toggle('show', !!findFiveTigers());
+  if(revealFx){ revealFx.t+=dt; if(revealFx.t>=revealFx.dur) revealFx=null; }
   if(dragging && dragging.source.type==='grid' && !dragging.moved){
     dragging.holdTime=(dragging.holdTime||0)+dt;
     if(dragging.holdTime>=SELL_HOLD_TIME){
@@ -1265,6 +1308,68 @@ function drawFloaters(){
   ctx.globalAlpha=1;
 }
 
+function drawGeneralReveal(){
+  if(!revealFx) return;
+  const info=GENERAL_REVEAL[revealFx.key]; if(!info) return;
+  const p=revealFx.t/revealFx.dur;
+  let alpha;
+  if(p<0.12) alpha=p/0.12;
+  else if(p>0.82) alpha=(1-p)/0.18;
+  else alpha=1;
+  alpha=Math.max(0,Math.min(1,alpha));
+  const scalePop = p<0.12? 0.7+0.3*(p/0.12) : 1;
+  const cx=W/2, cy=H*0.42;
+  ctx.save();
+  ctx.globalAlpha=alpha*0.55;
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=alpha;
+  ctx.translate(cx,cy); ctx.scale(scalePop,scalePop); ctx.translate(-cx,-cy);
+
+  const R=70*SCALE;
+  ctx.save();
+  ctx.strokeStyle=info.color; ctx.globalAlpha=alpha*0.35;
+  for(let i=0;i<16;i++){
+    const ang=(i/16)*Math.PI*2 + revealFx.t*0.6;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(ang)*R*1.1, cy+Math.sin(ang)*R*1.1);
+    ctx.lineTo(cx+Math.cos(ang)*R*2.0, cy+Math.sin(ang)*R*2.0);
+    ctx.lineWidth=3*SCALE;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.shadowColor=info.color; ctx.shadowBlur=26*SCALE;
+  ctx.strokeStyle=info.color; ctx.lineWidth=5*SCALE;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='#160f0a';
+  ctx.beginPath(); ctx.arc(cx,cy,R-4*SCALE,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.6*SCALE;
+  ctx.beginPath(); ctx.arc(cx,cy,R-10*SCALE,0,Math.PI*2); ctx.stroke();
+
+  ctx.fillStyle='#f6dd9a';
+  ctx.font=(R*0.85)+'px "Noto Serif TC",serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(revealFx.key==='fivetigers'?'虎':info.name[0], cx, cy-2*SCALE);
+
+  ctx.font=(24*SCALE)+'px "Noto Serif TC",serif';
+  ctx.fillStyle='#f0e6d2';
+  ctx.shadowColor='#000'; ctx.shadowBlur=6*SCALE;
+  ctx.fillText(info.name, cx, cy+R+34*SCALE);
+  ctx.shadowBlur=0;
+
+  ctx.font=(13*SCALE)+'px "Noto Sans TC",sans-serif';
+  ctx.fillStyle=info.color;
+  ctx.fillText(info.title, cx, cy+R+58*SCALE);
+
+  ctx.font=(11*SCALE)+'px "Noto Sans TC",sans-serif';
+  ctx.fillStyle='#c6b48c';
+  ctx.fillText(revealFx.key==='fivetigers'?'終 極 合 體':'武 將 登 場', cx, cy-R-18*SCALE);
+
+  ctx.restore();
+}
 function draw(){
   ctx.save();
   if(shakeTime>0) ctx.translate((Math.random()-0.5)*shakeMag,(Math.random()-0.5)*shakeMag);
@@ -1281,6 +1386,7 @@ function draw(){
   drawFloaters();
   if(flashTime>0){ ctx.fillStyle='rgba(169,47,43,'+(flashTime/0.2*0.3)+')'; ctx.fillRect(0,0,W,H); }
   ctx.restore();
+  drawGeneralReveal();
 }
 
 // ===================== Input =====================
@@ -1336,14 +1442,79 @@ function openModal(which){
   modal=which; modalBackdrop.classList.remove('hidden');
   shopPanel.style.display= which==='shop'?'block':'none';
   gachaPanel.style.display= which==='gacha'?'block':'none';
+  saveCodePanel.style.display= which==='savecode'?'block':'none';
   if(which==='shop') renderShop();
   if(which==='gacha') gachaResult.textContent='尚未抽選';
+  if(which==='savecode'){
+    saveCodeOut.value=exportSaveCode();
+    saveCodeIn.value='';
+    saveCodeMsg.textContent='';
+  }
 }
 function closeModal(){ modal=null; modalBackdrop.classList.add('hidden'); }
 shopBtn.addEventListener('click',()=>openModal('shop'));
 gachaBtn.addEventListener('click',()=>openModal('gacha'));
+saveCodeBtn.addEventListener('click',()=>openModal('savecode'));
 modalBackdrop.addEventListener('click',(e)=>{
   if(e.target.dataset && e.target.dataset.close) closeModal();
+});
+
+// ===================== Save code export/import =====================
+function exportSaveCode(){
+  const payload=JSON.stringify({
+    meritTotal,
+    upgrades:{
+      atkSpeed:{lv:upgrades.atkSpeed.lv}, hp:{lv:upgrades.hp.lv},
+      income:{lv:upgrades.income.lv}, discount:{lv:upgrades.discount.lv}
+    },
+    stageProgress
+  });
+  try{ return btoa(unescape(encodeURIComponent(payload))); }
+  catch(e){ return ''; }
+}
+function importSaveCode(code){
+  try{
+    const payload=decodeURIComponent(escape(atob(code.trim())));
+    const data=JSON.parse(payload);
+    if(typeof data.meritTotal!=='number' || !Array.isArray(data.stageProgress)) return false;
+    meritTotal=data.meritTotal;
+    if(data.upgrades){
+      for(const k in upgrades){
+        if(data.upgrades[k] && typeof data.upgrades[k].lv==='number') upgrades[k].lv=data.upgrades[k].lv;
+      }
+    }
+    data.stageProgress.forEach((p,i)=>{
+      if(p && stageProgress[i]){
+        stageProgress[i].cleared=!!p.cleared;
+        stageProgress[i].bestWave=p.bestWave||0;
+      }
+    });
+    applyUpgradeMults();
+    updateResUI();
+    persistSave();
+    return true;
+  }catch(e){ return false; }
+}
+copySaveCodeBtn.addEventListener('click',()=>{
+  saveCodeOut.select();
+  let copied=false;
+  try{ copied=document.execCommand('copy'); }catch(e){}
+  if(!copied && navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(saveCodeOut.value).then(()=>{
+      saveCodeMsg.textContent='已複製到剪貼簿！';
+    }).catch(()=>{
+      saveCodeMsg.textContent='複製失敗，代碼已選取，請自行複製（長按或 Ctrl+C）';
+    });
+  } else {
+    saveCodeMsg.textContent= copied? '已複製到剪貼簿！' : '代碼已選取，請自行複製（長按或 Ctrl+C）';
+  }
+});
+importSaveCodeBtn.addEventListener('click',()=>{
+  const code=saveCodeIn.value.trim();
+  if(!code){ saveCodeMsg.textContent='請先貼上代碼'; return; }
+  const ok=importSaveCode(code);
+  saveCodeMsg.textContent= ok? '匯入成功！進度已還原' : '代碼無效，請確認貼上完整內容';
+  if(ok) saveCodeOut.value=exportSaveCode();
 });
 
 function renderShop(){
