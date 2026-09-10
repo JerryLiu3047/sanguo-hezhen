@@ -1394,26 +1394,31 @@ gachaDrawBtn.addEventListener('click',()=>{
 });
 
 // ===================== Persistent save (window.storage) =====================
+const LOCAL_SAVE_KEY='sanguo_hezhen_save_v1';
 async function loadSave(){
   try{
+    let raw=null;
     if(window.storage){
       const res=await window.storage.get('save', false);
-      if(res && res.value){
-        const data=JSON.parse(res.value);
-        meritTotal = typeof data.meritTotal==='number'? data.meritTotal : 0;
-        if(data.upgrades){
-          for(const k in upgrades){
-            if(data.upgrades[k] && typeof data.upgrades[k].lv==='number') upgrades[k].lv=data.upgrades[k].lv;
+      if(res && res.value) raw=res.value;
+    } else if(window.localStorage){
+      raw=window.localStorage.getItem(LOCAL_SAVE_KEY);
+    }
+    if(raw){
+      const data=JSON.parse(raw);
+      meritTotal = typeof data.meritTotal==='number'? data.meritTotal : 0;
+      if(data.upgrades){
+        for(const k in upgrades){
+          if(data.upgrades[k] && typeof data.upgrades[k].lv==='number') upgrades[k].lv=data.upgrades[k].lv;
+        }
+      }
+      if(Array.isArray(data.stageProgress)){
+        data.stageProgress.forEach((p,i)=>{
+          if(p && stageProgress[i]){
+            stageProgress[i].cleared=!!p.cleared;
+            stageProgress[i].bestWave=p.bestWave||0;
           }
-        }
-        if(Array.isArray(data.stageProgress)){
-          data.stageProgress.forEach((p,i)=>{
-            if(p && stageProgress[i]){
-              stageProgress[i].cleared=!!p.cleared;
-              stageProgress[i].bestWave=p.bestWave||0;
-            }
-          });
-        }
+        });
       }
     }
   }catch(e){ /* no save yet, or storage unavailable - defaults stand */ }
@@ -1422,16 +1427,20 @@ async function loadSave(){
   updateResUI();
 }
 async function persistSave(){
+  const payload=JSON.stringify({
+    meritTotal,
+    upgrades:{
+      atkSpeed:{lv:upgrades.atkSpeed.lv}, hp:{lv:upgrades.hp.lv},
+      income:{lv:upgrades.income.lv}, discount:{lv:upgrades.discount.lv}
+    },
+    stageProgress
+  });
   try{
-    if(!window.storage) return;
-    await window.storage.set('save', JSON.stringify({
-      meritTotal,
-      upgrades:{
-        atkSpeed:{lv:upgrades.atkSpeed.lv}, hp:{lv:upgrades.hp.lv},
-        income:{lv:upgrades.income.lv}, discount:{lv:upgrades.discount.lv}
-      },
-      stageProgress
-    }), false);
+    if(window.storage){
+      await window.storage.set('save', payload, false);
+    } else if(window.localStorage){
+      window.localStorage.setItem(LOCAL_SAVE_KEY, payload);
+    }
   }catch(e){ /* best-effort save; ignore failures */ }
 }
 
