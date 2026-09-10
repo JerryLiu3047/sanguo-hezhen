@@ -1308,6 +1308,107 @@ function drawFloaters(){
   ctx.globalAlpha=1;
 }
 
+const BUST_CONFIG={
+  guanyu:{bgA:'#2a4a35',bgB:'#0f1a10',robeColor:'#3c6e52',robeTrim:'#e8bc4e',skin:'#c98a6a',beardColor:'#141110',beardLen:1,headwear:'wrap',headColor:'#1f4430',headAccent:'#2a5a3c'},
+  zhangfei:{bgA:'#4a3020',bgB:'#180f08',robeColor:'#7a5a34',robeTrim:'#c6b48c',skin:'#b5764f',beardColor:'#2a1c14',beardLen:0.4,headwear:'wrap',headColor:'#3c6e52',headAccent:'#2a5a3c',browAngle:true},
+  zhaoyun:{bgA:'#2a3a4a',bgB:'#0d1218',robeColor:'#5c7a93',robeTrim:'#cfd6da',skin:'#e0b394',hairColor:'#14100d',beardLen:0,headwear:'helmet',headColor:'#8a97a0',headAccent:'#cfd6da'},
+  machao:{bgA:'#3a3a42',bgB:'#121218',robeColor:'#7a6a2a',robeTrim:'#e8bc4e',skin:'#e6cdb0',hairColor:'#d8d8d8',beardLen:0,headwear:'helmet',headColor:'#c6a02a',headAccent:'#e8bc4e'},
+  huangzhong:{bgA:'#3a4a2a',bgB:'#10160a',robeColor:'#7a8a3a',robeTrim:'#c6b48c',skin:'#c9a57a',beardColor:'#d8d3c4',beardLen:0.9,headwear:'band',headColor:'#3a2a18'},
+  liubei:{bgA:'#4a3a1a',bgB:'#160f06',robeColor:'#7a5a1a',robeTrim:'#e8bc4e',skin:'#dcb896',beardColor:'#241a10',beardLen:0.25,headwear:'crown',headColor:'#3a2a18',headAccent:'#e8bc4e'}
+};
+function drawGenericBust(R,cfg){
+  const g=ctx.createRadialGradient(0,-R*0.2,R*0.1,0,0,R);
+  g.addColorStop(0,cfg.bgA); g.addColorStop(1,cfg.bgB);
+  ctx.fillStyle=g; ctx.fillRect(-R,-R,R*2,R*2);
+
+  ctx.fillStyle=cfg.robeColor;
+  ctx.beginPath();
+  ctx.moveTo(-R*0.78,R*0.95);
+  ctx.quadraticCurveTo(-R*0.72,R*0.22,-R*0.38,R*0.12);
+  ctx.quadraticCurveTo(0,R*0.02,R*0.38,R*0.12);
+  ctx.quadraticCurveTo(R*0.72,R*0.22,R*0.78,R*0.95);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=cfg.robeTrim; ctx.lineWidth=R*0.028; ctx.stroke();
+
+  if(cfg.beardLen>0){
+    ctx.fillStyle=cfg.beardColor;
+    const bl=R*(0.55+cfg.beardLen*0.5);
+    ctx.beginPath();
+    ctx.moveTo(-R*0.24,-R*0.02);
+    ctx.quadraticCurveTo(-R*0.32,bl*0.55,-R*0.07,bl);
+    ctx.quadraticCurveTo(0,bl*1.05,R*0.07,bl);
+    ctx.quadraticCurveTo(R*0.32,bl*0.55,R*0.24,-R*0.02);
+    ctx.quadraticCurveTo(0,R*0.08,-R*0.24,-R*0.02);
+    ctx.closePath(); ctx.fill();
+  }
+
+  ctx.fillStyle=cfg.skin;
+  ctx.beginPath(); ctx.ellipse(0,-R*0.28,R*0.27,R*0.31,0,0,Math.PI*2); ctx.fill();
+
+  if(cfg.hairColor){
+    ctx.fillStyle=cfg.hairColor;
+    ctx.beginPath();
+    ctx.moveTo(R*0.2,-R*0.5);
+    ctx.quadraticCurveTo(R*0.55,-R*0.1,R*0.42,R*0.55);
+    ctx.quadraticCurveTo(R*0.3,R*0.15,R*0.16,-R*0.35);
+    ctx.closePath(); ctx.fill();
+  }
+
+  ctx.fillStyle=cfg.headColor;
+  if(cfg.headwear==='wrap'){
+    ctx.beginPath(); ctx.ellipse(0,-R*0.52,R*0.3,R*0.15,0,Math.PI,Math.PI*2.02); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(R*0.18,-R*0.52); ctx.quadraticCurveTo(R*0.48,-R*0.32,R*0.38,R*0.08);
+    ctx.quadraticCurveTo(R*0.28,-R*0.18,R*0.13,-R*0.44); ctx.closePath(); ctx.fill();
+  } else if(cfg.headwear==='helmet'){
+    ctx.beginPath(); ctx.arc(0,-R*0.5,R*0.3,Math.PI*0.98,Math.PI*2.02); ctx.fill();
+    ctx.fillStyle=cfg.headAccent||cfg.headColor;
+    ctx.beginPath(); ctx.moveTo(-R*0.06,-R*0.78); ctx.lineTo(R*0.06,-R*0.78); ctx.lineTo(0,-R*0.95); ctx.closePath(); ctx.fill();
+  } else if(cfg.headwear==='crown'){
+    ctx.beginPath(); ctx.rect(-R*0.26,-R*0.66,R*0.52,R*0.16); ctx.fill();
+    ctx.fillStyle=cfg.headAccent||'#e8bc4e';
+    ctx.beginPath(); ctx.arc(0,-R*0.7,R*0.05,0,Math.PI*2); ctx.fill();
+  } else if(cfg.headwear==='band'){
+    ctx.beginPath(); ctx.rect(-R*0.27,-R*0.42,R*0.54,R*0.07); ctx.fill();
+  }
+
+  ctx.strokeStyle='#1a120d'; ctx.lineWidth=R*0.025; ctx.lineCap='round';
+  const by=cfg.browAngle?-R*0.36:-R*0.34;
+  ctx.beginPath(); ctx.moveTo(-R*0.15,-R*0.32); ctx.lineTo(-R*0.04,by); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(R*0.04,by); ctx.lineTo(R*0.15,-R*0.32); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-R*0.13,-R*0.24); ctx.lineTo(-R*0.05,-R*0.23); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(R*0.05,-R*0.23); ctx.lineTo(R*0.13,-R*0.24); ctx.stroke();
+}
+function drawTigerEmblem(R){
+  const g=ctx.createRadialGradient(0,-R*0.1,R*0.1,0,0,R);
+  g.addColorStop(0,'#3a2a10'); g.addColorStop(1,'#120c05');
+  ctx.fillStyle=g; ctx.fillRect(-R,-R,R*2,R*2);
+  ctx.fillStyle='#c6862a';
+  ctx.beginPath(); ctx.ellipse(0,0,R*0.55,R*0.5,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-R*0.42,-R*0.32); ctx.lineTo(-R*0.55,-R*0.62); ctx.lineTo(-R*0.18,-R*0.42); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(R*0.42,-R*0.32); ctx.lineTo(R*0.55,-R*0.62); ctx.lineTo(R*0.18,-R*0.42); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#241608'; ctx.lineWidth=R*0.045; ctx.lineCap='round';
+  [[-0.3,-0.25,-0.15,0.05],[0.3,-0.25,0.15,0.05],[-0.22,0.05,-0.1,0.3],[0.22,0.05,0.1,0.3],[0,-0.35,0,-0.15]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath(); ctx.moveTo(x1*R,y1*R); ctx.lineTo(x2*R,y2*R); ctx.stroke();
+  });
+  ctx.fillStyle='#f0dcb0';
+  ctx.beginPath(); ctx.ellipse(0,R*0.18,R*0.24,R*0.16,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1008';
+  ctx.beginPath(); ctx.moveTo(-R*0.06,R*0.1); ctx.lineTo(R*0.06,R*0.1); ctx.lineTo(0,R*0.18); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-R*0.18,-R*0.05,R*0.06,R*0.08,0.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(R*0.18,-R*0.05,R*0.06,R*0.08,-0.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#e8bc4e';
+  ctx.beginPath(); ctx.arc(-R*0.18,-R*0.05,R*0.03,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(R*0.18,-R*0.05,R*0.03,0,Math.PI*2); ctx.fill();
+}
+function drawPortraitBust(key,cx,cy,R){
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx,cy,R-8*SCALE,0,Math.PI*2); ctx.clip();
+  ctx.translate(cx,cy);
+  if(key==='fivetigers') drawTigerEmblem(R);
+  else if(BUST_CONFIG[key]) drawGenericBust(R,BUST_CONFIG[key]);
+  ctx.restore();
+}
 function drawGeneralReveal(){
   if(!revealFx) return;
   const info=GENERAL_REVEAL[revealFx.key]; if(!info) return;
@@ -1349,10 +1450,7 @@ function drawGeneralReveal(){
   ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.6*SCALE;
   ctx.beginPath(); ctx.arc(cx,cy,R-10*SCALE,0,Math.PI*2); ctx.stroke();
 
-  ctx.fillStyle='#f6dd9a';
-  ctx.font=(R*0.85)+'px "Noto Serif TC",serif';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(revealFx.key==='fivetigers'?'虎':info.name[0], cx, cy-2*SCALE);
+  drawPortraitBust(revealFx.key, cx, cy, R);
 
   ctx.font=(24*SCALE)+'px "Noto Serif TC",serif';
   ctx.fillStyle='#f0e6d2';
