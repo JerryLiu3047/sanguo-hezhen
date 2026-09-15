@@ -689,13 +689,19 @@ function placeAt(target, unitId){
   else { u.row=target.row; u.col=target.col; u.bench=-1; }
 }
 
+function getUnitIdAt(loc){ return loc.type==='bench'? bench[loc.index] : grid[loc.row][loc.col]; }
+function clearAt(loc){ if(loc.type==='bench') bench[loc.index]=null; else grid[loc.row][loc.col]=null; }
+
 function resolveDrop(source, target){
   const srcUnit = source.type==='bench'? units[bench[source.index]] : units[grid[source.row][source.col]];
   if(!srcUnit) return;
-  if(!target || target.type!=='grid'){ return; } // invalid drop -> snap back (no-op, unit untouched)
-  const destId = grid[target.row][target.col];
+  // valid targets: any grid cell, or a bench slot when dragging from bench to bench (merge/reorder without deploying)
+  if(!target || (target.type!=='grid' && !(target.type==='bench' && source.type==='bench'))) return;
+
+  const destId = getUnitIdAt(target);
   if(destId===null){
-    if(source.type==='grid' && source.row===target.row && source.col===target.col) return;
+    if(source.type==='grid' && target.type==='grid' && source.row===target.row && source.col===target.col) return;
+    if(source.type==='bench' && target.type==='bench' && source.index===target.index) return;
     clearSource(source);
     placeAt(target, srcUnit.id);
     return;
@@ -706,22 +712,22 @@ function resolveDrop(source, target){
   if(merged){
     delete units[srcUnit.id]; delete units[destUnit.id];
     clearSource(source);
-    grid[target.row][target.col]=null;
+    clearAt(target);
     units[merged.id]=merged;
     placeAt(target, merged.id);
-    const c=cellCenter(target.row,target.col);
+    const c = target.type==='bench'? benchCenter(target.index) : cellCenter(target.row,target.col);
     burst(c.x,c.y,'#e8bc4e',14,140*SCALE,.5,3*SCALE);
-    floatText(c.x,c.y-30*SCALE, merged.evolved? (merged.star>=3?'滿級！':'進階！') : '合成！', '#e8bc4e');
+    floatText(c.x,c.y-(target.type==='bench'?22:30)*SCALE, merged.evolved? (merged.star>=3?'滿級！':'進階！') : '合成！', '#e8bc4e');
     return;
   }
-  if(source.type==='grid'){
-    // swap
+  if(source.type===target.type){
+    // swap (grid<->grid as before, now also bench<->bench for reordering)
     clearSource(source);
-    grid[target.row][target.col]=null;
+    clearAt(target);
     placeAt(source, destUnit.id);
     placeAt(target, srcUnit.id);
   }
-  // bench dropped on mismatched grid unit -> no-op, snaps back
+  // mismatched source/target combo with different identities -> no-op, snaps back
 }
 
 // ===================== Sell (long-press a deployed unit) =====================
@@ -1255,6 +1261,16 @@ function drawDragGhost(){
     ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=2.4*SCALE; ctx.setLineDash([5*SCALE,4*SCALE]);
     roundRect(cr.x-2,cr.y-2,cr.w+4,cr.h+4,8*SCALE); ctx.stroke();
     ctx.restore();
+  } else if(dragging.source.type==='bench'){
+    // highlight hovered bench slot when reordering/merging within the bench itself
+    const bi=hitBenchSlot(dragging.x,dragging.y);
+    if(bi>=0 && bi!==dragging.source.index){
+      const br=benchRect[bi];
+      ctx.save();
+      ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=2.4*SCALE; ctx.setLineDash([5*SCALE,4*SCALE]);
+      roundRect(br.x-2,br.y-2,br.w+4,br.h+4,8*SCALE); ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -1321,63 +1337,79 @@ function drawGenericBust(R,cfg){
   g.addColorStop(0,cfg.bgA); g.addColorStop(1,cfg.bgB);
   ctx.fillStyle=g; ctx.fillRect(-R,-R,R*2,R*2);
 
+  // narrower shoulders so the head reads big & cute (chibi proportions)
   ctx.fillStyle=cfg.robeColor;
   ctx.beginPath();
-  ctx.moveTo(-R*0.78,R*0.95);
-  ctx.quadraticCurveTo(-R*0.72,R*0.22,-R*0.38,R*0.12);
-  ctx.quadraticCurveTo(0,R*0.02,R*0.38,R*0.12);
-  ctx.quadraticCurveTo(R*0.72,R*0.22,R*0.78,R*0.95);
+  ctx.moveTo(-R*0.62,R*0.95);
+  ctx.quadraticCurveTo(-R*0.58,R*0.32,-R*0.32,R*0.22);
+  ctx.quadraticCurveTo(0,R*0.14,R*0.32,R*0.22);
+  ctx.quadraticCurveTo(R*0.58,R*0.32,R*0.62,R*0.95);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=cfg.robeTrim; ctx.lineWidth=R*0.028; ctx.stroke();
+  ctx.strokeStyle=cfg.robeTrim; ctx.lineWidth=R*0.026; ctx.stroke();
 
   if(cfg.beardLen>0){
     ctx.fillStyle=cfg.beardColor;
-    const bl=R*(0.55+cfg.beardLen*0.5);
+    const bl=R*(0.5+cfg.beardLen*0.42);
     ctx.beginPath();
-    ctx.moveTo(-R*0.24,-R*0.02);
-    ctx.quadraticCurveTo(-R*0.32,bl*0.55,-R*0.07,bl);
-    ctx.quadraticCurveTo(0,bl*1.05,R*0.07,bl);
-    ctx.quadraticCurveTo(R*0.32,bl*0.55,R*0.24,-R*0.02);
-    ctx.quadraticCurveTo(0,R*0.08,-R*0.24,-R*0.02);
+    ctx.moveTo(-R*0.27,R*0.05);
+    ctx.quadraticCurveTo(-R*0.34,bl*0.55,-R*0.08,bl);
+    ctx.quadraticCurveTo(0,bl*1.05,R*0.08,bl);
+    ctx.quadraticCurveTo(R*0.34,bl*0.55,R*0.27,R*0.05);
+    ctx.quadraticCurveTo(0,R*0.14,-R*0.27,R*0.05);
     ctx.closePath(); ctx.fill();
   }
 
+  // big round chibi head
   ctx.fillStyle=cfg.skin;
-  ctx.beginPath(); ctx.ellipse(0,-R*0.28,R*0.27,R*0.31,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0,-R*0.32,R*0.36,R*0.38,0,0,Math.PI*2); ctx.fill();
 
   if(cfg.hairColor){
     ctx.fillStyle=cfg.hairColor;
     ctx.beginPath();
-    ctx.moveTo(R*0.2,-R*0.5);
-    ctx.quadraticCurveTo(R*0.55,-R*0.1,R*0.42,R*0.55);
-    ctx.quadraticCurveTo(R*0.3,R*0.15,R*0.16,-R*0.35);
+    ctx.moveTo(R*0.26,-R*0.56);
+    ctx.quadraticCurveTo(R*0.62,-R*0.1,R*0.48,R*0.5);
+    ctx.quadraticCurveTo(R*0.34,R*0.12,R*0.2,-R*0.4);
     ctx.closePath(); ctx.fill();
   }
 
   ctx.fillStyle=cfg.headColor;
   if(cfg.headwear==='wrap'){
-    ctx.beginPath(); ctx.ellipse(0,-R*0.52,R*0.3,R*0.15,0,Math.PI,Math.PI*2.02); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,-R*0.58,R*0.37,R*0.18,0,Math.PI,Math.PI*2.02); ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(R*0.18,-R*0.52); ctx.quadraticCurveTo(R*0.48,-R*0.32,R*0.38,R*0.08);
-    ctx.quadraticCurveTo(R*0.28,-R*0.18,R*0.13,-R*0.44); ctx.closePath(); ctx.fill();
+    ctx.moveTo(R*0.22,-R*0.58); ctx.quadraticCurveTo(R*0.56,-R*0.36,R*0.44,R*0.1);
+    ctx.quadraticCurveTo(R*0.32,-R*0.2,R*0.16,-R*0.5); ctx.closePath(); ctx.fill();
   } else if(cfg.headwear==='helmet'){
-    ctx.beginPath(); ctx.arc(0,-R*0.5,R*0.3,Math.PI*0.98,Math.PI*2.02); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-R*0.56,R*0.37,Math.PI*0.98,Math.PI*2.02); ctx.fill();
     ctx.fillStyle=cfg.headAccent||cfg.headColor;
-    ctx.beginPath(); ctx.moveTo(-R*0.06,-R*0.78); ctx.lineTo(R*0.06,-R*0.78); ctx.lineTo(0,-R*0.95); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-R*0.07,-R*0.88); ctx.lineTo(R*0.07,-R*0.88); ctx.lineTo(0,-R*1.08); ctx.closePath(); ctx.fill();
   } else if(cfg.headwear==='crown'){
-    ctx.beginPath(); ctx.rect(-R*0.26,-R*0.66,R*0.52,R*0.16); ctx.fill();
+    ctx.beginPath(); ctx.rect(-R*0.32,-R*0.74,R*0.64,R*0.18); ctx.fill();
     ctx.fillStyle=cfg.headAccent||'#e8bc4e';
-    ctx.beginPath(); ctx.arc(0,-R*0.7,R*0.05,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-R*0.78,R*0.06,0,Math.PI*2); ctx.fill();
   } else if(cfg.headwear==='band'){
-    ctx.beginPath(); ctx.rect(-R*0.27,-R*0.42,R*0.54,R*0.07); ctx.fill();
+    ctx.beginPath(); ctx.rect(-R*0.33,-R*0.48,R*0.66,R*0.08); ctx.fill();
   }
 
-  ctx.strokeStyle='#1a120d'; ctx.lineWidth=R*0.025; ctx.lineCap='round';
-  const by=cfg.browAngle?-R*0.36:-R*0.34;
-  ctx.beginPath(); ctx.moveTo(-R*0.15,-R*0.32); ctx.lineTo(-R*0.04,by); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(R*0.04,by); ctx.lineTo(R*0.15,-R*0.32); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-R*0.13,-R*0.24); ctx.lineTo(-R*0.05,-R*0.23); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(R*0.05,-R*0.23); ctx.lineTo(R*0.13,-R*0.24); ctx.stroke();
+  // rosy chibi cheeks
+  ctx.globalAlpha=0.4;
+  ctx.fillStyle='#e8828a';
+  ctx.beginPath(); ctx.ellipse(-R*0.2,-R*0.16,R*0.075,R*0.05,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(R*0.2,-R*0.16,R*0.075,R*0.05,0,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
+
+  // eyebrows
+  ctx.strokeStyle='#1a120d'; ctx.lineWidth=R*0.028; ctx.lineCap='round';
+  const by=cfg.browAngle?-R*0.4:-R*0.38;
+  ctx.beginPath(); ctx.moveTo(-R*0.17,-R*0.34); ctx.lineTo(-R*0.05,by); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(R*0.05,by); ctx.lineTo(R*0.17,-R*0.34); ctx.stroke();
+
+  // big round chibi eyes
+  ctx.fillStyle='#1a120d';
+  ctx.beginPath(); ctx.ellipse(-R*0.12,-R*0.25,R*0.045,R*0.06,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(R*0.12,-R*0.25,R*0.045,R*0.06,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(-R*0.1,-R*0.27,R*0.014,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(R*0.14,-R*0.27,R*0.014,0,Math.PI*2); ctx.fill();
 }
 function drawTigerEmblem(R){
   const g=ctx.createRadialGradient(0,-R*0.1,R*0.1,0,0,R);
@@ -1428,43 +1460,66 @@ function drawGeneralReveal(){
   ctx.translate(cx,cy); ctx.scale(scalePop,scalePop); ctx.translate(-cx,-cy);
 
   const R=70*SCALE;
+  const isFive=revealFx.key==='fivetigers';
+  const FIVE_ORDER=['huangzhong','zhaoyun','guanyu','zhangfei','machao'];
+  const r5=R*0.46;
+  const badgeR=isFive? r5 : R;
+
   ctx.save();
   ctx.strokeStyle=info.color; ctx.globalAlpha=alpha*0.35;
+  const ringR = isFive? R*1.9 : R;
   for(let i=0;i<16;i++){
     const ang=(i/16)*Math.PI*2 + revealFx.t*0.6;
     ctx.beginPath();
-    ctx.moveTo(cx+Math.cos(ang)*R*1.1, cy+Math.sin(ang)*R*1.1);
-    ctx.lineTo(cx+Math.cos(ang)*R*2.0, cy+Math.sin(ang)*R*2.0);
+    ctx.moveTo(cx+Math.cos(ang)*ringR*1.1, cy+Math.sin(ang)*ringR*1.1);
+    ctx.lineTo(cx+Math.cos(ang)*ringR*1.7, cy+Math.sin(ang)*ringR*1.7);
     ctx.lineWidth=3*SCALE;
     ctx.stroke();
   }
   ctx.restore();
 
-  ctx.save();
-  ctx.shadowColor=info.color; ctx.shadowBlur=26*SCALE;
-  ctx.strokeStyle=info.color; ctx.lineWidth=5*SCALE;
-  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
-  ctx.restore();
-  ctx.fillStyle='#160f0a';
-  ctx.beginPath(); ctx.arc(cx,cy,R-4*SCALE,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.6*SCALE;
-  ctx.beginPath(); ctx.arc(cx,cy,R-10*SCALE,0,Math.PI*2); ctx.stroke();
-
-  drawPortraitBust(revealFx.key, cx, cy, R);
+  if(isFive){
+    const spacing=r5*2.3;
+    const startX=cx-spacing*2;
+    FIVE_ORDER.forEach((key,i)=>{
+      const bx=startX+spacing*i, by=cy;
+      ctx.save();
+      ctx.shadowColor=info.color; ctx.shadowBlur=16*SCALE;
+      ctx.strokeStyle=info.color; ctx.lineWidth=3.4*SCALE;
+      ctx.beginPath(); ctx.arc(bx,by,r5,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle='#160f0a';
+      ctx.beginPath(); ctx.arc(bx,by,r5-3*SCALE,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.2*SCALE;
+      ctx.beginPath(); ctx.arc(bx,by,r5-7*SCALE,0,Math.PI*2); ctx.stroke();
+      drawPortraitBust(key, bx, by, r5);
+    });
+  } else {
+    ctx.save();
+    ctx.shadowColor=info.color; ctx.shadowBlur=26*SCALE;
+    ctx.strokeStyle=info.color; ctx.lineWidth=5*SCALE;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle='#160f0a';
+    ctx.beginPath(); ctx.arc(cx,cy,R-4*SCALE,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.6*SCALE;
+    ctx.beginPath(); ctx.arc(cx,cy,R-10*SCALE,0,Math.PI*2); ctx.stroke();
+    drawPortraitBust(revealFx.key, cx, cy, R);
+  }
 
   ctx.font=(24*SCALE)+'px "Noto Serif TC",serif';
   ctx.fillStyle='#f0e6d2';
   ctx.shadowColor='#000'; ctx.shadowBlur=6*SCALE;
-  ctx.fillText(info.name, cx, cy+R+34*SCALE);
+  ctx.fillText(info.name, cx, cy+badgeR+34*SCALE);
   ctx.shadowBlur=0;
 
   ctx.font=(13*SCALE)+'px "Noto Sans TC",sans-serif';
   ctx.fillStyle=info.color;
-  ctx.fillText(info.title, cx, cy+R+58*SCALE);
+  ctx.fillText(info.title, cx, cy+badgeR+58*SCALE);
 
   ctx.font=(11*SCALE)+'px "Noto Sans TC",sans-serif';
   ctx.fillStyle='#c6b48c';
-  ctx.fillText(revealFx.key==='fivetigers'?'終 極 合 體':'武 將 登 場', cx, cy-R-18*SCALE);
+  ctx.fillText(revealFx.key==='fivetigers'?'終 極 合 體':'武 將 登 場', cx, cy-badgeR-18*SCALE);
 
   ctx.restore();
 }
@@ -1523,7 +1578,12 @@ canvas.addEventListener('pointermove',(e)=>{
 window.addEventListener('pointerup',(e)=>{
   if(!dragging) return;
   const gc=hitGridCell(e.clientX,e.clientY);
-  resolveDrop(dragging.source, gc?{type:'grid',row:gc.row,col:gc.col}:null);
+  let target = gc? {type:'grid',row:gc.row,col:gc.col} : null;
+  if(!target){
+    const bi=hitBenchSlot(e.clientX,e.clientY);
+    if(bi>=0) target={type:'bench',index:bi};
+  }
+  resolveDrop(dragging.source, target);
   dragging=null;
 });
 
