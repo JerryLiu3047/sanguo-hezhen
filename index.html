@@ -358,7 +358,7 @@ const MAX_HEARTS=10;
 const BASE_INCOME=6;
 const GRAIN_GAIN_MULT=0.2; // all grain acquisition reduced to 20% (i.e. -80%)
 function gainGrain(amount){ grain += amount*GRAIN_GAIN_MULT; }
-const SELL_HOLD_TIME=0.6; // seconds to long-press a deployed unit to sell it
+const SELL_HOLD_TIME=1.0; // seconds to long-press a deployed unit to sell it
 const PREP_TIME=10;
 
 const STAGES=[
@@ -381,7 +381,27 @@ const STAGES=[
   {id:'ch9a',chapter:9,name:'誅殺董卓',sub:'第九回上・除暴兇呂布助司徒',waves:40,mult:5.8,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'呂布何在，快來救我！'}},
   {id:'ch9b',chapter:9,name:'李傕犯京',sub:'第九回下・犯長安李傕聽賈詡',waves:42,mult:6.1,faction:'dongzhuo',boss:{name:'李傕',glyph:'李',quote:'西涼健兒，隨我踏平長安！'}},
   {id:'ch10a',chapter:10,name:'馬騰舉義',sub:'第十回上・勤王室馬騰舉義',waves:44,mult:6.4,faction:'dongzhuo',boss:{name:'郭汜',glyph:'郭',quote:'長安城下，誰與我郭多一戰！'}},
-  {id:'ch10b',chapter:10,name:'興師復仇',sub:'第十回下・報父讎曹操興師',waves:46,mult:6.7,faction:'xuzhou',boss:{name:'陶謙',glyph:'陶',quote:'徐州百姓何辜，曹賊休要遷怒！'}}
+  {id:'ch10b',chapter:10,name:'興師復仇',sub:'第十回下・報父讎曹操興師',waves:46,mult:6.7,faction:'xuzhou',boss:{name:'陶謙',glyph:'陶',quote:'徐州百姓何辜，曹賊休要遷怒！'}},
+  {id:'ch11a',chapter:11,name:'北海救孔融',sub:'第十一回上・劉皇叔北海救孔融',waves:48,mult:7.0,faction:'huangjin',boss:{name:'管亥',glyph:'管',quote:'北海城下，管某要這孔北海人頭！'}},
+  {id:'ch11b',chapter:11,name:'濮陽破曹操',sub:'第十一回下・呂溫侯濮陽破曹操',waves:50,mult:7.3,faction:'lubu',boss:{name:'呂布',glyph:'呂',quote:'濮陽城下，誰敢與我呂布一戰！'}},
+  {id:'ch12a',chapter:12,name:'三讓徐州',sub:'第十二回上・陶恭祖三讓徐州',waves:52,mult:7.6,faction:'caocao',boss:{name:'曹操',glyph:'操',quote:'徐州之地，早晚是我囊中之物！'}},
+  {id:'ch12b',chapter:12,name:'大戰呂布',sub:'第十二回下・曹孟德大戰呂布',waves:54,mult:7.9,faction:'lubu',boss:{name:'呂布',glyph:'呂',quote:'天下英雄，誰是呂布一戟之敵！'}},
+  {id:'ch13a',chapter:13,name:'李郭交兵',sub:'第十三回上・李傕郭汜大交兵',waves:56,mult:8.2,faction:'dongzhuo',boss:{name:'李傕',glyph:'李',quote:'西涼健兒，隨我踏平長安！'}},
+  {id:'ch13b',chapter:13,name:'雙救聖駕',sub:'第十三回下・楊奉董承雙救駕',waves:58,mult:8.5,faction:'dongzhuo',boss:{name:'郭汜',glyph:'郭',quote:'長安城下，誰與我郭多一戰！'}},
+  {id:'ch14a',chapter:14,name:'移駕許都',sub:'第十四回上・曹孟德移駕幸許都',waves:60,mult:8.8,faction:'caocao',boss:{name:'楊奉',glyph:'楊',quote:'護駕之功，豈容曹賊搶奪！'}},
+  {id:'ch14b',chapter:14,name:'夜襲徐郡',sub:'第十四回下・呂奉先乘夜襲徐郡',waves:62,mult:9.1,faction:'lubu',boss:{name:'呂布',glyph:'呂',quote:'夜襲徐郡，趁劉備不在，此城歸我！'}},
+  {id:'ch15a',chapter:15,name:'酣鬥小霸王',sub:'第十五回上・太史慈酣鬥小霸王',waves:64,mult:9.4,faction:'liuyao',boss:{name:'太史慈',glyph:'慈',quote:'神亭嶺前，太史慈單騎討戰！'}},
+  {id:'ch15b',chapter:15,name:'大戰嚴白虎',sub:'第十五回下・孫伯符大戰嚴白虎',waves:66,mult:9.7,faction:'liuyao',boss:{name:'嚴白虎',glyph:'嚴',quote:'東吳之地，豈容孫郎小兒放肆！'}},
+  {id:'ch16a',chapter:16,name:'轅門射戟',sub:'第十六回上・呂奉先射戟轅門',waves:68,mult:10.0,faction:'yuanshu',boss:{name:'紀靈',glyph:'紀',quote:'轅門之外，紀靈奉命來取劉備首級！'}},
+  {id:'ch16b',chapter:16,name:'敗師淯水',sub:'第十六回下・曹孟德敗師淯水',waves:70,mult:10.3,faction:'zhangxiu',boss:{name:'張繡',glyph:'繡',quote:'宛城之內，誰敢輕辱張繡！'}},
+  {id:'ch17a',chapter:17,name:'大起七軍',sub:'第十七回上・袁公路大起七軍',waves:72,mult:10.6,faction:'yuanshu',boss:{name:'袁術',glyph:'袁',quote:'吾據四世三公之家，稱帝有何不可！'}},
+  {id:'ch17b',chapter:17,name:'會合三將',sub:'第十七回下・曹孟德會合三將',waves:74,mult:10.9,faction:'yuanshu',boss:{name:'橋蕤',glyph:'橋',quote:'七路大軍，踏平徐州！'}},
+  {id:'ch18a',chapter:18,name:'料敵決勝',sub:'第十八回上・賈文和料敵決勝',waves:76,mult:11.2,faction:'zhangxiu',boss:{name:'張繡',glyph:'繡',quote:'宛城易主，勝負豈是定局！'}},
+  {id:'ch18b',chapter:18,name:'拔矢啖睛',sub:'第十八回下・夏侯惇拔矢啖睛',waves:78,mult:11.5,faction:'lubu',boss:{name:'曹性',glyph:'性',quote:'暗箭之下，誰能全身而退！'}},
+  {id:'ch19a',chapter:19,name:'下邳鏖兵',sub:'第十九回上・下邳城曹操鏖兵',waves:80,mult:11.8,faction:'lubu',boss:{name:'呂布',glyph:'呂',quote:'下邳孤城，誓與此城共存亡！'}},
+  {id:'ch19b',chapter:19,name:'白門殞命',sub:'第十九回下・白門樓呂布殞命',waves:82,mult:12.1,faction:'lubu',boss:{name:'呂布',glyph:'呂',quote:'縛虎豈可不急，誰能救我一命！'}},
+  {id:'ch20a',chapter:20,name:'許田打圍',sub:'第二十回上・曹阿瞞許田打圍',waves:84,mult:12.4,faction:'caocao',boss:{name:'許褚',glyph:'褚',quote:'護衛丞相，虎癡在此！'}},
+  {id:'ch20b',chapter:20,name:'內閣受詔',sub:'第二十回下・董國舅內閣受詔',waves:86,mult:12.7,faction:'caocao',boss:{name:'曹操',glyph:'操',quote:'寧教我負天下人，休教天下人負我！'}}
 ];
 let currentStageIdx=0;
 let stage=STAGES[0];
@@ -447,6 +467,41 @@ const FACTION_ENEMY_SETS={
     raider:{name:'徐州輕騎',glyph:'輕',color:'#5a5a6a'},
     heavy:{name:'徐州重甲',glyph:'甲',color:'#3a3a4a'},
     elite:{name:'徐州牙將',glyph:'牙',color:'#5a4a6a'}
+  },
+  lubu:{
+    foot:{name:'呂布卒',glyph:'呂',color:'#5a1a1a'},
+    archer:{name:'呂布弓手',glyph:'弓',color:'#4a1414'},
+    raider:{name:'并州狼騎',glyph:'狼',color:'#7a2a12'},
+    heavy:{name:'陷陣衛',glyph:'陷',color:'#331a1a'},
+    elite:{name:'呂布親兵',glyph:'親',color:'#8a2a1a'}
+  },
+  caocao:{
+    foot:{name:'兗州卒',glyph:'兗',color:'#3a3a2a'},
+    archer:{name:'兗州弓手',glyph:'弓',color:'#2a3a24'},
+    raider:{name:'虎豹騎',glyph:'虎',color:'#5a3a12'},
+    heavy:{name:'青州兵',glyph:'青',color:'#2a4a3a'},
+    elite:{name:'曹家驍將',glyph:'驍',color:'#4a2a1a'}
+  },
+  liuyao:{
+    foot:{name:'江東卒',glyph:'江',color:'#2a4a4a'},
+    archer:{name:'江東弓手',glyph:'弓',color:'#1a3a3a'},
+    raider:{name:'丹陽輕騎',glyph:'丹',color:'#3a6a5a'},
+    heavy:{name:'江東重甲',glyph:'甲',color:'#2a3a3a'},
+    elite:{name:'江東健將',glyph:'健',color:'#1a5a4a'}
+  },
+  yuanshu:{
+    foot:{name:'淮南卒',glyph:'淮',color:'#4a3a4a'},
+    archer:{name:'淮南弓手',glyph:'弓',color:'#3a2a3a'},
+    raider:{name:'淮南輕騎',glyph:'輕',color:'#6a4a6a'},
+    heavy:{name:'淮南重甲',glyph:'甲',color:'#3a2a3a'},
+    elite:{name:'淮南驍將',glyph:'驍',color:'#5a2a5a'}
+  },
+  zhangxiu:{
+    foot:{name:'宛城卒',glyph:'宛',color:'#4a3a2a'},
+    archer:{name:'宛城弓手',glyph:'弓',color:'#3a2a1a'},
+    raider:{name:'西涼遺騎',glyph:'遺',color:'#6a3a1a'},
+    heavy:{name:'宛城重甲',glyph:'甲',color:'#3a2a1a'},
+    elite:{name:'宛城驍將',glyph:'驍',color:'#5a3a1a'}
   }
 };
 
@@ -1383,7 +1438,18 @@ const ENEMY_BUST_CONFIG={
   '黃祖':{bgA:'#1a3a3a',bgB:'#061414',robeColor:'#2a5a5a',robeTrim:'#6ac6c6',skin:'#b5764f',beardColor:'#241a10',beardLen:0.6,headwear:'helmet',headColor:'#2a4a4a',headAccent:'#6ac6c6'},
   '李傕':{bgA:'#3a1a2a',bgB:'#10060e',robeColor:'#5a2a3a',robeTrim:'#a06a7a',skin:'#c9a57a',beardColor:'#241a10',beardLen:0.55,headwear:'helmet',headColor:'#4a1a2a',headAccent:'#a06a7a'},
   '郭汜':{bgA:'#2a1a3a',bgB:'#0a060e',robeColor:'#3a2a5a',robeTrim:'#8a6ac6',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.5,headwear:'helmet',headColor:'#2a1a4a',headAccent:'#8a6ac6'},
-  '陶謙':{bgA:'#2a3a4a',bgB:'#0a1218',robeColor:'#3a5a7a',robeTrim:'#a0c6e0',skin:'#dcb896',beardColor:'#d8d3c4',beardLen:0.7,headwear:'crown',headColor:'#2a3a4a',headAccent:'#a0c6e0'}
+  '陶謙':{bgA:'#2a3a4a',bgB:'#0a1218',robeColor:'#3a5a7a',robeTrim:'#a0c6e0',skin:'#dcb896',beardColor:'#d8d3c4',beardLen:0.7,headwear:'crown',headColor:'#2a3a4a',headAccent:'#a0c6e0'},
+  '管亥':{bgA:'#4a3a1a',bgB:'#160f06',robeColor:'#8a6a1a',robeTrim:'#c69a2a',skin:'#a5673f',beardColor:'#241a10',beardLen:0.5,headwear:'wrap',headColor:'#5a4a12',headAccent:'#8a6a1a'},
+  '曹操':{bgA:'#2a2a1a',bgB:'#0a0a06',robeColor:'#3a3a2a',robeTrim:'#6a6a3a',skin:'#c9a57a',beardColor:'#1a1410',beardLen:0.35,headwear:'crown',headColor:'#2a2a1a',headAccent:'#8a7a3a',browAngle:true},
+  '楊奉':{bgA:'#2a3a2a',bgB:'#0a140a',robeColor:'#3a5a3a',robeTrim:'#7a9a6a',skin:'#b5764f',beardColor:'#241a10',beardLen:0.45,headwear:'helmet',headColor:'#3a4a2a',headAccent:'#7a9a6a'},
+  '太史慈':{bgA:'#1a3a2a',bgB:'#06140a',robeColor:'#2a5a3a',robeTrim:'#6ac68a',skin:'#c9a57a',beardLen:0,headwear:'helmet',headColor:'#2a4a2a',headAccent:'#6ac68a',hairColor:'#141110'},
+  '嚴白虎':{bgA:'#3a3a3a',bgB:'#101010',robeColor:'#5a5a5a',robeTrim:'#d0d0d0',skin:'#c9a57a',beardColor:'#8a8a8a',beardLen:0.55,headwear:'wrap',headColor:'#4a4a4a',headAccent:'#d0d0d0'},
+  '紀靈':{bgA:'#3a2a3a',bgB:'#100a10',robeColor:'#5a3a5a',robeTrim:'#9a6a9a',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.6,headwear:'helmet',headColor:'#4a2a4a',headAccent:'#9a6a9a',browAngle:true},
+  '張繡':{bgA:'#3a2a1a',bgB:'#100a04',robeColor:'#6a4a1a',robeTrim:'#c69a4a',skin:'#c9a57a',beardLen:0.2,headwear:'helmet',headColor:'#5a3a1a',headAccent:'#c69a4a'},
+  '袁術':{bgA:'#3a1a3a',bgB:'#100a10',robeColor:'#6a2a6a',robeTrim:'#e8bc4e',skin:'#dcb896',beardColor:'#241a10',beardLen:0.4,headwear:'crown',headColor:'#3a1a3a',headAccent:'#e8bc4e'},
+  '橋蕤':{bgA:'#2a1a3a',bgB:'#0a060e',robeColor:'#4a2a5a',robeTrim:'#8a6ac6',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.5,headwear:'helmet',headColor:'#3a1a4a',headAccent:'#8a6ac6'},
+  '曹性':{bgA:'#4a1a1a',bgB:'#140606',robeColor:'#6a2a1a',robeTrim:'#a0603a',skin:'#a5673f',beardColor:'#1a1410',beardLen:0.3,headwear:'band',headColor:'#3a1a10'},
+  '許褚':{bgA:'#3a1a1a',bgB:'#100606',robeColor:'#5a2a1a',robeTrim:'#9a5a2a',skin:'#a5673f',beardColor:'#1a1410',beardLen:0.4,headwear:'band',headColor:'#2a1a10',browAngle:true}
 };
 function drawGenericBust(R,cfg){
   const g=ctx.createRadialGradient(0,-R*0.2,R*0.1,0,0,R);
