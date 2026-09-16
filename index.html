@@ -16,7 +16,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;background:var(--ink);overflow:hidden;
-    touch-action:none;-webkit-user-select:none;user-select:none;font-family:"Noto Sans TC",sans-serif;}
+    touch-action:none;-webkit-user-select:none;user-select:none;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;}
   #app{position:fixed;inset:0;height:100dvh;}
   #game{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;}
 
@@ -30,13 +30,13 @@
   #heartsCountTxt{color:var(--parchment);font-weight:700;font-size:14.5px;text-shadow:0 1px 2px #000;white-space:nowrap;}
   #waveTag{text-align:center;color:var(--parchment);flex-shrink:0;}
   #waveTag .stagename{white-space:nowrap;}
-  #waveTag .num{font-family:"Noto Serif TC",serif;font-weight:900;font-size:19px;color:var(--gold-bright);text-shadow:0 1px 2px #000;}
+  #waveTag .num{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:900;font-size:19px;color:var(--gold-bright);text-shadow:0 1px 2px #000;}
   #waveTag .lbl{font-size:10px;letter-spacing:2px;color:var(--parchment-dim);white-space:nowrap;}
   #resRow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;color:var(--parchment);}
   .res-chip{display:flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700;text-shadow:0 1px 2px #000;
     background:rgba(0,0,0,.28);border-radius:12px;padding:3px 9px;}
   .speed-chip{pointer-events:auto;cursor:pointer;background:rgba(200,153,47,.16);border:1px solid rgba(200,153,47,.45);
-    border-radius:12px;padding:3px 9px;color:var(--gold-bright);font-family:"Noto Sans TC",sans-serif;}
+    border-radius:12px;padding:3px 9px;color:var(--gold-bright);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;}
   .speed-chip:active{filter:brightness(.85);}
   .res-chip .ic{font-size:15px;}
 
@@ -50,15 +50,15 @@
     padding:5px 10px;border-radius:2px;cursor:pointer;}
 
   #alertBanner{position:absolute;top:110px;left:50%;transform:translateX(-50%);z-index:6;
-    font-family:"Noto Serif TC",serif;font-weight:900;font-size:22px;color:var(--blood-bright);
+    font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:900;font-size:22px;color:var(--blood-bright);
     text-shadow:0 2px 6px #000,0 0 20px rgba(169,47,43,.6);opacity:0;transition:opacity .4s;
     pointer-events:none;white-space:nowrap;letter-spacing:3px;}
   #alertBanner.show{opacity:1;}
 
-  #fusionBanner{position:absolute;top:150px;left:50%;transform:translateX(-50%);z-index:7;
+  #fusionBanner{position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:7;
     background:linear-gradient(180deg,#3a2c1c,#241a10);border:2px solid var(--gold-bright);
-    border-radius:6px;padding:10px 18px;color:var(--gold-bright);font-family:"Noto Serif TC",serif;
-    font-weight:900;font-size:14.5px;letter-spacing:1.5px;cursor:pointer;white-space:nowrap;
+    border-radius:6px;padding:6px 14px;color:var(--gold-bright);font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;
+    font-weight:900;font-size:13px;letter-spacing:1.2px;cursor:pointer;white-space:nowrap;
     text-align:center;opacity:0;pointer-events:none;transition:opacity .3s;
     animation:fusionPulse 1.4s ease-in-out infinite;}
   #fusionBanner.show{opacity:1;pointer-events:auto;}
@@ -92,7 +92,7 @@
   .overlay-inner{margin:auto;display:flex;flex-direction:column;align-items:center;max-width:100%;padding:14px 0;}
   .overlay.hidden{opacity:0;pointer-events:none;}
   .eyebrow{font-size:12px;letter-spacing:6px;color:var(--gold);margin-bottom:6px;}
-  .title-main{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(30px,8vw,50px);
+  .title-main{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:900;font-size:clamp(30px,8vw,50px);
     color:var(--parchment);text-shadow:0 2px 0 #000,0 0 26px rgba(200,153,47,.3);
     letter-spacing:5px;margin:0 0 8px;line-height:1.3;}
   .desc{max-width:420px;font-size:13.5px;line-height:1.85;color:var(--parchment-dim);margin-bottom:20px;}
@@ -100,7 +100,7 @@
   .rules{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;max-width:460px;}
   .rule-item{width:100px;font-size:11.5px;color:var(--parchment-dim);line-height:1.5;}
   .rule-item .ic{font-size:23px;display:block;margin-bottom:4px;}
-  .banner-btn{font-family:"Noto Serif TC",serif;font-weight:700;font-size:18px;color:#2a1707;
+  .banner-btn{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:700;font-size:18px;color:#2a1707;
     background:linear-gradient(180deg,#e8bc4e,#b3821f 55%,#8a611a);border:none;cursor:pointer;
     padding:13px 42px;clip-path:polygon(4% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%);
     box-shadow:0 4px 12px rgba(0,0,0,.5);letter-spacing:3px;}
@@ -113,7 +113,7 @@
   .panel{background:linear-gradient(180deg,#231a12,#160f0a);border:1px solid rgba(200,153,47,.4);
     border-radius:8px;width:100%;max-width:400px;max-height:88vh;overflow-y:auto;color:var(--parchment);
     padding:18px;}
-  .panel h2{font-family:"Noto Serif TC",serif;font-size:19px;margin:0 0 4px;color:var(--gold-bright);letter-spacing:2px;}
+  .panel h2{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-size:19px;margin:0 0 4px;color:var(--gold-bright);letter-spacing:2px;}
   .panel .sub{font-size:12px;color:var(--parchment-dim);margin-bottom:14px;}
   .upgrade-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
     padding:10px 0;border-top:1px solid rgba(200,153,47,.15);}
@@ -153,7 +153,7 @@
     border-radius:7px;padding:12px 14px;cursor:pointer;text-align:left;}
   .stage-card:active{filter:brightness(.9);}
   .stage-card.locked{opacity:.45;cursor:default;}
-  .stage-name{font-family:"Noto Serif TC",serif;font-weight:900;font-size:16.5px;color:var(--parchment);}
+  .stage-name{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:900;font-size:16.5px;color:var(--parchment);}
   .stage-sub{font-size:11px;color:var(--parchment-dim);margin-top:2px;}
   .stage-meta{font-size:12px;color:var(--gold-bright);white-space:nowrap;text-align:right;}
   .cleared-tag{display:block;font-size:10px;color:#9fd48a;margin-bottom:2px;}
@@ -362,21 +362,26 @@ const SELL_HOLD_TIME=0.6; // seconds to long-press a deployed unit to sell it
 const PREP_TIME=10;
 
 const STAGES=[
-  {id:'xinye',name:'新野',sub:'火燒新野・入門教學',waves:10,mult:1.0,faction:'wei',boss:{name:'夏侯惇',glyph:'夏'}},
-  {id:'changban',name:'長坂坡',sub:'單騎救主・七進七出',waves:14,mult:1.3,faction:'wei',boss:{name:'呂布',glyph:'呂'}},
-  {id:'chibi',name:'赤壁',sub:'火燒連環・東風破敵',waves:18,mult:1.65,faction:'wei',boss:{name:'張郃',glyph:'張'}},
-  {id:'hanzhong',name:'漢中',sub:'定軍山・奪蜀北大門',waves:22,mult:2.05,faction:'wei',boss:{name:'夏侯淵',glyph:'淵'}},
-  {id:'wuzhangyuan',name:'五丈原',sub:'秋風五丈原・終極決戰',waves:26,mult:2.5,faction:'wei',boss:{name:'司馬懿',glyph:'司'}},
-  {id:'qishan',name:'祁山',sub:'諸葛亮北伐・首出祁山',waves:30,mult:3.0,faction:'wei',boss:{name:'郭淮',glyph:'郭'}},
-  {id:'jieting',name:'街亭',sub:'街亭失守・退守漢中',waves:34,mult:3.55,faction:'wei',boss:{name:'曹真',glyph:'曹'}},
-  {id:'nanman',name:'南蠻',sub:'七擒孟獲・平定南方',waves:38,mult:4.15,faction:'nanman',boss:{name:'孟獲',glyph:'孟'}},
-  {id:'hefei',name:'合肥',sub:'跨境奇襲・逍遙津畔',waves:42,mult:4.8,faction:'wei',boss:{name:'張遼',glyph:'遼'}},
-  {id:'luoyang',name:'洛陽',sub:'興復漢室・終極一戰',waves:46,mult:5.5,faction:'wei',boss:{name:'司馬昭',glyph:'昭'}},
-  {id:'chencang',name:'陳倉',sub:'諸葛亮圍城不克・鎩羽而歸',waves:50,mult:6.25,faction:'wei',boss:{name:'郝昭',glyph:'郝'}},
-  {id:'shangfanggu',name:'上方谷',sub:'火燒上方谷・天不助蜀',waves:54,mult:7.05,faction:'wei',boss:{name:'司馬懿',glyph:'懿'}},
-  {id:'maicheng',name:'麥城',sub:'關羽敗走・英雄末路',waves:58,mult:7.9,faction:'wu',boss:{name:'呂蒙',glyph:'蒙'}},
-  {id:'yiling',name:'夷陵',sub:'劉備伐吳・火燒連營',waves:62,mult:8.8,faction:'wu',boss:{name:'陸遜',glyph:'遜'}},
-  {id:'chengdu',name:'成都',sub:'蜀漢終局・最後一戰',waves:66,mult:9.75,faction:'wei',boss:{name:'鄧艾',glyph:'鄧'}}
+  {id:'ch1a',chapter:1,name:'桃園結義',sub:'第一回上・宴桃園豪傑三結義',waves:8,mult:1.0,faction:'huangjin',boss:{name:'程遠志',glyph:'程',quote:'黃巾在此，爾等受死！'}},
+  {id:'ch1b',chapter:1,name:'力斬黃巾',sub:'第一回下・斬黃巾英雄首立功',waves:10,mult:1.3,faction:'huangjin',boss:{name:'張寶',glyph:'寶',quote:'妖法在手，誰敢近前！'}},
+  {id:'ch2a',chapter:2,name:'怒鞭督郵',sub:'第二回上・張翼德怒鞭督郵',waves:12,mult:1.6,faction:'hanting',boss:{name:'督郵',glyph:'郵',quote:'爾等草民，安敢冒犯本官！'}},
+  {id:'ch2b',chapter:2,name:'謀誅宦豎',sub:'第二回下・何國舅謀誅宦豎',waves:14,mult:1.9,faction:'hanting',boss:{name:'張讓',glyph:'讓',quote:'宮闈之事，豈容爾等干涉！'}},
+  {id:'ch3a',chapter:3,name:'董卓叱丁原',sub:'第三回上・議溫明董卓叱丁原',waves:16,mult:2.2,faction:'dongzhuo',boss:{name:'丁原',glyph:'丁',quote:'老夫丁建陽，豈懼董卓老賊！'}},
+  {id:'ch3b',chapter:3,name:'認賊作父',sub:'第三回下・餽金珠李肅說呂布',waves:18,mult:2.5,faction:'dongzhuo',boss:{name:'呂布',glyph:'呂',quote:'天下英雄，誰是呂布一戟之敵！'}},
+  {id:'ch4a',chapter:4,name:'董卓專權',sub:'第四回上・廢漢帝陳留踐位',waves:20,mult:2.8,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'順我者昌，逆我者亡！'}},
+  {id:'ch4b',chapter:4,name:'孟德獻刀',sub:'第四回下・謀董賊孟德獻刀',waves:22,mult:3.1,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'刺客休走，誰人助我拿下！'}},
+  {id:'ch5a',chapter:5,name:'溫酒斬華雄',sub:'第五回上・發矯詔諸鎮應曹公',waves:24,mult:3.4,faction:'dongzhuo',boss:{name:'華雄',glyph:'華',quote:'斬盡諸侯，方顯我西涼虎將之威！'}},
+  {id:'ch5b',chapter:5,name:'三英戰呂布',sub:'第五回下・破關兵三英戰呂布',waves:26,mult:3.7,faction:'dongzhuo',boss:{name:'呂布',glyph:'呂',quote:'虎牢關前，誰敢與我一戰！'}},
+  {id:'ch6a',chapter:6,name:'火燒洛陽',sub:'第六回上・焚金闕董卓行兇',waves:28,mult:4.0,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'洛陽焚盡，遷都長安，誰敢阻我！'}},
+  {id:'ch6b',chapter:6,name:'孫堅匿璽',sub:'第六回下・匿玉璽孫堅背約',waves:30,mult:4.3,faction:'dongzhuo',boss:{name:'胡軫',glyph:'胡',quote:'洛陽已亂，誰敢再擋西涼鐵騎！'}},
+  {id:'ch7a',chapter:7,name:'磐河之戰',sub:'第七回上・袁紹磐河戰公孫',waves:32,mult:4.6,faction:'hebei',boss:{name:'文醜',glyph:'醜',quote:'河北文醜在此，河南鼠輩休走！'}},
+  {id:'ch7b',chapter:7,name:'跨江擊表',sub:'第七回下・孫堅跨江擊劉表',waves:34,mult:4.9,faction:'jingzhou',boss:{name:'黃祖',glyph:'黃',quote:'江夏水寨，豈容爾等放肆！'}},
+  {id:'ch8a',chapter:8,name:'連環巧計',sub:'第八回上・王司徒巧使連環計',waves:36,mult:5.2,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'貂蟬在側，誰敢與我相爭！'}},
+  {id:'ch8b',chapter:8,name:'鳳儀亭變',sub:'第八回下・董太師大鬧鳳儀亭',waves:38,mult:5.5,faction:'dongzhuo',boss:{name:'呂布',glyph:'呂',quote:'鳳儀亭上，此恨難消！'}},
+  {id:'ch9a',chapter:9,name:'誅殺董卓',sub:'第九回上・除暴兇呂布助司徒',waves:40,mult:5.8,faction:'dongzhuo',boss:{name:'董卓',glyph:'董',quote:'呂布何在，快來救我！'}},
+  {id:'ch9b',chapter:9,name:'李傕犯京',sub:'第九回下・犯長安李傕聽賈詡',waves:42,mult:6.1,faction:'dongzhuo',boss:{name:'李傕',glyph:'李',quote:'西涼健兒，隨我踏平長安！'}},
+  {id:'ch10a',chapter:10,name:'馬騰舉義',sub:'第十回上・勤王室馬騰舉義',waves:44,mult:6.4,faction:'dongzhuo',boss:{name:'郭汜',glyph:'郭',quote:'長安城下，誰與我郭多一戰！'}},
+  {id:'ch10b',chapter:10,name:'興師復仇',sub:'第十回下・報父讎曹操興師',waves:46,mult:6.7,faction:'xuzhou',boss:{name:'陶謙',glyph:'陶',quote:'徐州百姓何辜，曹賊休要遷怒！'}}
 ];
 let currentStageIdx=0;
 let stage=STAGES[0];
@@ -401,26 +406,47 @@ const ENEMY_TYPES={
   boss:{hp:1300,atk:22,speed:30,intv:1.0,ranged:false}
 };
 const FACTION_ENEMY_SETS={
-  wei:{
-    foot:{name:'魏卒',glyph:'卒',color:'#5a4636'},
-    archer:{name:'魏弓手',glyph:'弓',color:'#3a4a2c'},
-    raider:{name:'虎豹騎',glyph:'虎',color:'#8a3a1a'},
-    heavy:{name:'魏重甲兵',glyph:'甲',color:'#33324a'},
-    elite:{name:'魏將',glyph:'將',color:'#7a1f5a'}
+  huangjin:{
+    foot:{name:'黃巾流民',glyph:'流',color:'#8a7a2a'},
+    archer:{name:'黃巾山賊',glyph:'山',color:'#6a7a2a'},
+    raider:{name:'黃巾馬賊',glyph:'馬',color:'#a68a1a'},
+    heavy:{name:'黃巾強盜',glyph:'盜',color:'#7a5a1a'},
+    elite:{name:'黃巾渠帥',glyph:'帥',color:'#c6952a'}
   },
-  wu:{
-    foot:{name:'吳卒',glyph:'卒',color:'#2f5a4a'},
-    archer:{name:'吳弓手',glyph:'弓',color:'#254a3a'},
-    raider:{name:'江東銳騎',glyph:'銳',color:'#1a6a5a'},
-    heavy:{name:'吳重盾兵',glyph:'盾',color:'#2a4a42'},
-    elite:{name:'吳將',glyph:'將',color:'#0f6a52'}
+  hanting:{
+    foot:{name:'亂軍',glyph:'亂',color:'#5a4a42'},
+    archer:{name:'官府弓手',glyph:'弓',color:'#4a4238'},
+    raider:{name:'悍卒',glyph:'悍',color:'#6a3a2a'},
+    heavy:{name:'死士',glyph:'死',color:'#3a3230'},
+    elite:{name:'宦官死士',glyph:'宦',color:'#5a2a4a'}
   },
-  nanman:{
-    foot:{name:'蠻兵',glyph:'蠻',color:'#6a4a2a'},
-    archer:{name:'藤甲弓手',glyph:'弓',color:'#5a6a2a'},
-    raider:{name:'蠻族輕騎',glyph:'騎',color:'#8a5a1a'},
-    heavy:{name:'藤甲兵',glyph:'藤',color:'#4a7a2a'},
-    elite:{name:'蠻王親兵',glyph:'親',color:'#8a2a1a'}
+  dongzhuo:{
+    foot:{name:'涼州卒',glyph:'涼',color:'#5a4636'},
+    archer:{name:'涼州弓手',glyph:'弓',color:'#4a3a2c'},
+    raider:{name:'西涼鐵騎',glyph:'鐵',color:'#7a2a1a'},
+    heavy:{name:'陷陣營',glyph:'陷',color:'#33324a'},
+    elite:{name:'西涼驍將',glyph:'驍',color:'#7a1f1f'}
+  },
+  hebei:{
+    foot:{name:'河北卒',glyph:'河',color:'#2a4a5a'},
+    archer:{name:'河北弓手',glyph:'弓',color:'#254a4a'},
+    raider:{name:'河北輕騎',glyph:'輕',color:'#1a5a6a'},
+    heavy:{name:'河北重甲',glyph:'甲',color:'#2a3a5a'},
+    elite:{name:'河北健將',glyph:'健',color:'#1f4a7a'}
+  },
+  jingzhou:{
+    foot:{name:'荊州卒',glyph:'荊',color:'#2f5a4a'},
+    archer:{name:'荊州弓手',glyph:'弓',color:'#254a3a'},
+    raider:{name:'江夏水兵',glyph:'水',color:'#1a6a6a'},
+    heavy:{name:'荊州重甲',glyph:'甲',color:'#2a4a42'},
+    elite:{name:'荊州驍將',glyph:'驍',color:'#0f6a5a'}
+  },
+  xuzhou:{
+    foot:{name:'徐州卒',glyph:'徐',color:'#4a4a5a'},
+    archer:{name:'徐州弓手',glyph:'弓',color:'#3a3a4a'},
+    raider:{name:'徐州輕騎',glyph:'輕',color:'#5a5a6a'},
+    heavy:{name:'徐州重甲',glyph:'甲',color:'#3a3a4a'},
+    elite:{name:'徐州牙將',glyph:'牙',color:'#5a4a6a'}
   }
 };
 
@@ -458,6 +484,11 @@ const GENERAL_REVEAL={
 function showGeneralReveal(key){
   if(!GENERAL_REVEAL[key]) return;
   revealFx={key, t:0, dur: key==='fivetigers'?3.0:2.3};
+}
+let enemyRevealFx=null; // {name, quote, t, dur} - enemy boss "incoming" reveal
+function showEnemyReveal(name, quote){
+  if(!ENEMY_BUST_CONFIG[name]) return;
+  enemyRevealFx={name, quote:quote||'', t:0, dur:2.6};
 }
 let runMeritGain=0;
 
@@ -597,6 +628,7 @@ function resetGame(){
   wave=0; waveState='idle'; prepTimer=0; spawnQueue=[]; spawnTimer=0;
   rallyCharges=2; rallyTimer=0;
   bossDefeated=false; elapsed=0;
+  gameSpeed=1; speedLabel.textContent='1x';
   applyUpgradeMults();
   stageNameLbl.textContent=stage.name;
   waveTotalLbl.textContent=stage.waves;
@@ -865,6 +897,7 @@ function startNextWave(){
   if(wave===STAGE_WAVES){
     spawnQueue.push({typeKey:'boss', row:2});
     showAlert('最終決戰・'+stage.boss.name+'來襲！');
+    showEnemyReveal(stage.boss.name, stage.boss.quote);
   } else {
     const count=Math.min(15, 3+Math.floor(wave*0.55));
     const weights=typeWeightsForWave(wave);
@@ -969,13 +1002,7 @@ function update(dt){
   if(rallyTimer>0){ rallyTimer-=dt; if(rallyTimer<=0) updateRallyUI(); }
   fusionBanner.classList.toggle('show', !!findFiveTigers());
   if(revealFx){ revealFx.t+=dt; if(revealFx.t>=revealFx.dur) revealFx=null; }
-  if(dragging && dragging.source.type==='grid' && !dragging.moved){
-    dragging.holdTime=(dragging.holdTime||0)+dt;
-    if(dragging.holdTime>=SELL_HOLD_TIME){
-      sellUnit(dragging.unit);
-      dragging=null;
-    }
-  }
+  if(enemyRevealFx){ enemyRevealFx.t+=dt; if(enemyRevealFx.t>=enemyRevealFx.dur) enemyRevealFx=null; }
 
   // wave state machine
   if(waveState==='prep'){
@@ -1181,12 +1208,12 @@ function drawUnitTile(u,x,y,w,h,dim){
   }
 
   ctx.fillStyle = glow? '#f6dd9a' : '#ecdfc2';
-  ctx.font = (Math.min(w,h)*(u.evolved?0.34:0.46))+'px "Noto Serif TC",serif';
+  ctx.font = (Math.min(w,h)*(u.evolved?0.34:0.46))+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(displayGlyph(u), cx, cy - h*0.06);
 
   // level / star badge - kept clear of the bottom bar(s)
-  ctx.font=(Math.min(w,h)*0.2)+'px "Noto Sans TC",sans-serif';
+  ctx.font=(Math.min(w,h)*0.2)+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif';
   if(u.evolved){
     let stars=''; for(let i=0;i<u.star;i++) stars+='★';
     ctx.fillStyle='#e8bc4e';
@@ -1285,7 +1312,7 @@ function drawEnemies(){
     ctx.strokeStyle= e.isBoss?'#e8bc4e': e.isElite? '#e05a9a':'rgba(0,0,0,.4)';
     ctx.lineWidth=e.isBoss||e.isElite?2.4*SCALE:1.2*SCALE; ctx.stroke();
     ctx.fillStyle='#f0e6d2';
-    ctx.font=(r*1.05)+'px "Noto Serif TC",serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font=(r*1.05)+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(e.displayGlyph,0,1*SCALE);
     ctx.restore();
     if(e.flashT>0) e.flashT-=1/60;
@@ -1294,6 +1321,16 @@ function drawEnemies(){
       ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(bx,by,bw,3.2*SCALE);
       ctx.fillStyle= e.isBoss? '#e8bc4e' : '#a92f2b';
       ctx.fillRect(bx,by,bw*Math.max(0,e.hp/e.maxHp),3.2*SCALE);
+    }
+    if(e.isBoss){
+      ctx.save();
+      ctx.font=(12*SCALE)+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#000'; ctx.globalAlpha=0.6;
+      ctx.fillText(e.displayName, e.x+1*SCALE, y-r-16*SCALE+1*SCALE);
+      ctx.globalAlpha=1; ctx.fillStyle='#e8bc4e';
+      ctx.fillText(e.displayName, e.x, y-r-16*SCALE);
+      ctx.restore();
     }
   });
 }
@@ -1318,7 +1355,7 @@ function drawParticles(){
 function drawFloaters(){
   floaters.forEach(f=>{
     ctx.globalAlpha=Math.max(0,f.life);
-    ctx.fillStyle=f.color; ctx.font=(13*SCALE)+'px "Noto Serif TC",serif';
+    ctx.fillStyle=f.color; ctx.font=(13*SCALE)+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif';
     ctx.textAlign='center'; ctx.fillText(f.text,f.x,f.y);
   });
   ctx.globalAlpha=1;
@@ -1331,6 +1368,22 @@ const BUST_CONFIG={
   machao:{bgA:'#3a3a42',bgB:'#121218',robeColor:'#7a6a2a',robeTrim:'#e8bc4e',skin:'#e6cdb0',hairColor:'#d8d8d8',beardLen:0,headwear:'helmet',headColor:'#c6a02a',headAccent:'#e8bc4e'},
   huangzhong:{bgA:'#3a4a2a',bgB:'#10160a',robeColor:'#7a8a3a',robeTrim:'#c6b48c',skin:'#c9a57a',beardColor:'#d8d3c4',beardLen:0.9,headwear:'band',headColor:'#3a2a18'},
   liubei:{bgA:'#4a3a1a',bgB:'#160f06',robeColor:'#7a5a1a',robeTrim:'#e8bc4e',skin:'#dcb896',beardColor:'#241a10',beardLen:0.25,headwear:'crown',headColor:'#3a2a18',headAccent:'#e8bc4e'}
+};
+const ENEMY_BUST_CONFIG={
+  '程遠志':{bgA:'#4a2a1a',bgB:'#180d08',robeColor:'#8a7a2a',robeTrim:'#c6952a',skin:'#b5764f',beardColor:'#2a1c14',beardLen:0.3,headwear:'wrap',headColor:'#6a5a1a',headAccent:'#8a7a2a'},
+  '張寶':{bgA:'#4a3a1a',bgB:'#180f08',robeColor:'#9a8a2a',robeTrim:'#e8bc4e',skin:'#c9a57a',beardColor:'#3a2a1a',beardLen:0.7,headwear:'wrap',headColor:'#7a6a1a',headAccent:'#c6952a'},
+  '督郵':{bgA:'#3a2a4a',bgB:'#120a18',robeColor:'#4a3a6a',robeTrim:'#8a7aa0',skin:'#dcb896',beardColor:'#241a10',beardLen:0.15,headwear:'crown',headColor:'#2a1a3a',headAccent:'#8a7aa0'},
+  '張讓':{bgA:'#3a1a3a',bgB:'#120818',robeColor:'#5a2a5a',robeTrim:'#c68ac6',skin:'#e0c4a8',beardLen:0,headwear:'crown',headColor:'#2a0a2a',headAccent:'#c68ac6'},
+  '丁原':{bgA:'#2a3a3a',bgB:'#0a1414',robeColor:'#4a5a5a',robeTrim:'#a0b0b0',skin:'#c9a57a',beardColor:'#8a8a8a',beardLen:0.6,headwear:'helmet',headColor:'#5a6a6a',headAccent:'#a0b0b0'},
+  '呂布':{bgA:'#4a1a1a',bgB:'#180808',robeColor:'#7a1a1a',robeTrim:'#e8bc4e',skin:'#dcb896',beardLen:0,headwear:'helmet',headColor:'#c6952a',headAccent:'#e8bc4e',hairColor:'#141110'},
+  '董卓':{bgA:'#3a1a1a',bgB:'#100606',robeColor:'#4a2a2a',robeTrim:'#8a3a3a',skin:'#c9a57a',beardColor:'#141110',beardLen:0.75,headwear:'crown',headColor:'#2a1414',headAccent:'#8a3a3a',browAngle:true},
+  '華雄':{bgA:'#3a2a1a',bgB:'#100a04',robeColor:'#5a3a1a',robeTrim:'#a0703a',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.65,headwear:'helmet',headColor:'#6a4a1a',headAccent:'#a0703a',browAngle:true},
+  '胡軫':{bgA:'#2a2a3a',bgB:'#0a0a14',robeColor:'#3a3a5a',robeTrim:'#7a7aa0',skin:'#c9a57a',beardColor:'#241a10',beardLen:0.5,headwear:'helmet',headColor:'#4a4a6a',headAccent:'#7a7aa0'},
+  '文醜':{bgA:'#1a2a4a',bgB:'#060a18',robeColor:'#2a3a6a',robeTrim:'#6a8ac6',skin:'#c9a57a',beardColor:'#141110',beardLen:0.55,headwear:'helmet',headColor:'#2a3a5a',headAccent:'#6a8ac6',browAngle:true},
+  '黃祖':{bgA:'#1a3a3a',bgB:'#061414',robeColor:'#2a5a5a',robeTrim:'#6ac6c6',skin:'#b5764f',beardColor:'#241a10',beardLen:0.6,headwear:'helmet',headColor:'#2a4a4a',headAccent:'#6ac6c6'},
+  '李傕':{bgA:'#3a1a2a',bgB:'#10060e',robeColor:'#5a2a3a',robeTrim:'#a06a7a',skin:'#c9a57a',beardColor:'#241a10',beardLen:0.55,headwear:'helmet',headColor:'#4a1a2a',headAccent:'#a06a7a'},
+  '郭汜':{bgA:'#2a1a3a',bgB:'#0a060e',robeColor:'#3a2a5a',robeTrim:'#8a6ac6',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.5,headwear:'helmet',headColor:'#2a1a4a',headAccent:'#8a6ac6'},
+  '陶謙':{bgA:'#2a3a4a',bgB:'#0a1218',robeColor:'#3a5a7a',robeTrim:'#a0c6e0',skin:'#dcb896',beardColor:'#d8d3c4',beardLen:0.7,headwear:'crown',headColor:'#2a3a4a',headAccent:'#a0c6e0'}
 };
 function drawGenericBust(R,cfg){
   const g=ctx.createRadialGradient(0,-R*0.2,R*0.1,0,0,R);
@@ -1439,6 +1492,7 @@ function drawPortraitBust(key,cx,cy,R){
   ctx.translate(cx,cy);
   if(key==='fivetigers') drawTigerEmblem(R);
   else if(BUST_CONFIG[key]) drawGenericBust(R,BUST_CONFIG[key]);
+  else if(ENEMY_BUST_CONFIG[key]) drawGenericBust(R,ENEMY_BUST_CONFIG[key]);
   ctx.restore();
 }
 function drawGeneralReveal(){
@@ -1507,19 +1561,79 @@ function drawGeneralReveal(){
     drawPortraitBust(revealFx.key, cx, cy, R);
   }
 
-  ctx.font=(24*SCALE)+'px "Noto Serif TC",serif';
+  ctx.font=(24*SCALE)+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif';
   ctx.fillStyle='#f0e6d2';
   ctx.shadowColor='#000'; ctx.shadowBlur=6*SCALE;
   ctx.fillText(info.name, cx, cy+badgeR+34*SCALE);
   ctx.shadowBlur=0;
 
-  ctx.font=(13*SCALE)+'px "Noto Sans TC",sans-serif';
+  ctx.font=(13*SCALE)+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif';
   ctx.fillStyle=info.color;
   ctx.fillText(info.title, cx, cy+badgeR+58*SCALE);
 
-  ctx.font=(11*SCALE)+'px "Noto Sans TC",sans-serif';
+  ctx.font=(11*SCALE)+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif';
   ctx.fillStyle='#c6b48c';
   ctx.fillText(revealFx.key==='fivetigers'?'終 極 合 體':'武 將 登 場', cx, cy-badgeR-18*SCALE);
+
+  ctx.restore();
+}
+function drawEnemyReveal(){
+  if(!enemyRevealFx) return;
+  const cfg=ENEMY_BUST_CONFIG[enemyRevealFx.name]; if(!cfg) return;
+  const p=enemyRevealFx.t/enemyRevealFx.dur;
+  let alpha;
+  if(p<0.12) alpha=p/0.12;
+  else if(p>0.82) alpha=(1-p)/0.18;
+  else alpha=1;
+  alpha=Math.max(0,Math.min(1,alpha));
+  const slideIn = p<0.15? (1-p/0.15) : 0;
+  const cx=W/2+slideIn*140*SCALE, cy=H*0.66;
+  const hostileColor='#c0392b';
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.translate(cx,cy);
+
+  const R=60*SCALE;
+  ctx.save();
+  ctx.strokeStyle=hostileColor; ctx.globalAlpha=alpha*0.4;
+  for(let i=0;i<12;i++){
+    const ang=(i/12)*Math.PI*2 - enemyRevealFx.t*0.5;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(ang)*R*1.15, Math.sin(ang)*R*1.15);
+    ctx.lineTo(Math.cos(ang)*R*1.65, Math.sin(ang)*R*1.65);
+    ctx.lineWidth=2.6*SCALE;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.shadowColor=hostileColor; ctx.shadowBlur=22*SCALE;
+  ctx.strokeStyle=hostileColor; ctx.lineWidth=4.4*SCALE;
+  ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='#0f0808';
+  ctx.beginPath(); ctx.arc(0,0,R-3.5*SCALE,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#8a2a1a'; ctx.lineWidth=1.4*SCALE;
+  ctx.beginPath(); ctx.arc(0,0,R-8*SCALE,0,Math.PI*2); ctx.stroke();
+
+  drawPortraitBust(enemyRevealFx.name, 0, 0, R);
+
+  ctx.font=(11*SCALE)+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif';
+  ctx.fillStyle='#e08a7a';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('敵 將 來 襲', 0, -R-16*SCALE);
+
+  ctx.font=(21*SCALE)+'px "Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif';
+  ctx.fillStyle='#f0e6d2';
+  ctx.shadowColor='#000'; ctx.shadowBlur=6*SCALE;
+  ctx.fillText(enemyRevealFx.name, 0, R+30*SCALE);
+  ctx.shadowBlur=0;
+
+  if(enemyRevealFx.quote){
+    ctx.font=(12*SCALE)+'px "Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif';
+    ctx.fillStyle=hostileColor;
+    ctx.fillText('「'+enemyRevealFx.quote+'」', 0, R+52*SCALE);
+  }
 
   ctx.restore();
 }
@@ -1540,6 +1654,7 @@ function draw(){
   if(flashTime>0){ ctx.fillStyle='rgba(169,47,43,'+(flashTime/0.2*0.3)+')'; ctx.fillRect(0,0,W,H); }
   ctx.restore();
   drawGeneralReveal();
+  drawEnemyReveal();
 }
 
 // ===================== Input =====================
@@ -1825,6 +1940,15 @@ function loop(ts){
   let dt=(ts-lastTs)/1000; lastTs=ts;
   if(dt>0.05) dt=0.05;
   if(phase==='battle' && !modal) update(dt*gameSpeed);
+  // sell-hold timing always runs in real time, never scaled by battle speed,
+  // so 2x/4x can't make a long-press-to-sell trigger accidentally fast
+  if(dragging && dragging.source.type==='grid' && !dragging.moved){
+    dragging.holdTime=(dragging.holdTime||0)+dt;
+    if(dragging.holdTime>=SELL_HOLD_TIME){
+      sellUnit(dragging.unit);
+      dragging=null;
+    }
+  }
   draw();
   requestAnimationFrame(loop);
 }
