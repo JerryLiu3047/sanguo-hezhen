@@ -32,6 +32,9 @@
   #waveTag .stagename{white-space:nowrap;}
   #waveTag .num{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;font-weight:900;font-size:19px;color:var(--gold-bright);text-shadow:0 1px 2px #000;}
   #waveTag .lbl{font-size:10px;letter-spacing:2px;color:var(--parchment-dim);white-space:nowrap;}
+  #enemyRoster{flex:1;min-width:0;align-self:center;text-align:center;font-size:11px;
+    color:var(--parchment-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    letter-spacing:.5px;text-shadow:0 1px 2px #000;}
   #resRow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;color:var(--parchment);}
   .res-chip{display:flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700;text-shadow:0 1px 2px #000;
     background:rgba(0,0,0,.28);border-radius:12px;padding:3px 9px;}
@@ -66,6 +69,26 @@
     0%,100%{box-shadow:0 0 10px rgba(232,188,78,.35);}
     50%{box-shadow:0 0 24px rgba(232,188,78,.85);}
   }
+
+  #unitInfoPanel{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:20;
+    width:min(78vw,300px);background:linear-gradient(180deg,#241a12,#160f0a);
+    border:1px solid rgba(200,153,47,.5);border-radius:8px;padding:12px 14px;
+    box-shadow:0 6px 20px rgba(0,0,0,.55);pointer-events:auto;}
+  #unitInfoPanel.hidden{display:none;}
+  .uip-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;
+    padding-bottom:6px;border-bottom:1px solid rgba(200,153,47,.25);}
+  .uip-name{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;
+    font-weight:900;font-size:16px;color:var(--gold-bright);}
+  .uip-close{background:none;border:none;color:var(--parchment-dim);font-size:14px;cursor:pointer;padding:2px 6px;}
+  .uip-row{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+    color:var(--parchment);padding:3px 0;}
+  .uip-row.hidden{display:none;}
+  .uip-label{color:var(--parchment-dim);}
+  .uip-val{font-weight:700;color:var(--parchment);}
+  .uip-skill{margin-top:8px;padding-top:8px;border-top:1px solid rgba(200,153,47,.25);}
+  .uip-skill.hidden{display:none;}
+  .uip-skill-name{font-size:13px;font-weight:700;color:#8fa8ff;margin-bottom:3px;}
+  .uip-skill-desc{font-size:11.5px;color:var(--parchment-dim);line-height:1.5;}
 
   #bottomPanel{position:absolute;left:0;right:0;bottom:0;z-index:5;pointer-events:none;
     display:flex;flex-direction:column;align-items:center;}
@@ -173,6 +196,7 @@
   <div id="hud">
     <div id="hudTop">
       <div id="heartsRow"></div>
+      <div id="enemyRoster"></div>
       <div id="waveTag"><div class="stagename" id="stageNameLbl">新野</div><div class="num" id="waveNum">1</div><div class="lbl">波 / <span id="waveTotalLbl">10</span></div></div>
     </div>
     <div id="resRow">
@@ -186,6 +210,23 @@
   <div id="prepBanner"><span>下一波倒數 <span class="cnt" id="prepCnt">6</span> 秒</span><button id="skipBtn">提前開戰</button></div>
   <div id="alertBanner"></div>
   <div id="fusionBanner">五虎齊聚！點此合體為「五虎上將」</div>
+
+  <div id="unitInfoPanel" class="hidden">
+    <div class="uip-header">
+      <span class="uip-name" id="uipName">-</span>
+      <button class="uip-close" id="uipCloseBtn">✕</button>
+    </div>
+    <div class="uip-row"><span class="uip-label">⚔️ 攻擊力</span><span class="uip-val" id="uipAtk">-</span></div>
+    <div class="uip-row"><span class="uip-label">❤️ 生命值</span><span class="uip-val" id="uipHp">-</span></div>
+    <div class="uip-row" id="uipIntvRow"><span class="uip-label">⏱️ 攻擊間隔</span><span class="uip-val" id="uipIntv">-</span></div>
+    <div class="uip-row" id="uipRangeRow"><span class="uip-label">🎯 射程</span><span class="uip-val" id="uipRange">-</span></div>
+    <div class="uip-row hidden" id="uipIncomeRow"><span class="uip-label">🌾 屯糧</span><span class="uip-val" id="uipIncome">-</span></div>
+    <div class="uip-row hidden" id="uipManaRow"><span class="uip-label">🔷 魔力</span><span class="uip-val" id="uipMana">-</span></div>
+    <div class="uip-skill hidden" id="uipSkillBox">
+      <div class="uip-skill-name" id="uipSkillName">-</div>
+      <div class="uip-skill-desc" id="uipSkillDesc">-</div>
+    </div>
+  </div>
 
   <div id="bottomPanel">
     <div id="benchSpace"></div>
@@ -279,6 +320,7 @@
 // ===================== DOM =====================
 const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
 const heartsRow=document.getElementById('heartsRow');
+const enemyRosterEl=document.getElementById('enemyRoster');
 const waveNumEl=document.getElementById('waveNum');
 const grainValEl=document.getElementById('grainVal');
 const tokenValEl=document.getElementById('tokenVal');
@@ -287,6 +329,22 @@ const prepCntEl=document.getElementById('prepCnt');
 const skipBtn=document.getElementById('skipBtn');
 const alertBanner=document.getElementById('alertBanner');
 const fusionBanner=document.getElementById('fusionBanner');
+const unitInfoPanel=document.getElementById('unitInfoPanel');
+const uipName=document.getElementById('uipName');
+const uipCloseBtn=document.getElementById('uipCloseBtn');
+const uipAtk=document.getElementById('uipAtk');
+const uipHp=document.getElementById('uipHp');
+const uipIntvRow=document.getElementById('uipIntvRow');
+const uipIntv=document.getElementById('uipIntv');
+const uipRangeRow=document.getElementById('uipRangeRow');
+const uipRange=document.getElementById('uipRange');
+const uipIncomeRow=document.getElementById('uipIncomeRow');
+const uipIncome=document.getElementById('uipIncome');
+const uipManaRow=document.getElementById('uipManaRow');
+const uipMana=document.getElementById('uipMana');
+const uipSkillBox=document.getElementById('uipSkillBox');
+const uipSkillName=document.getElementById('uipSkillName');
+const uipSkillDesc=document.getElementById('uipSkillDesc');
 const recruitBtn=document.getElementById('recruitBtn');
 const recruitCostLbl=document.getElementById('recruitCostLbl');
 const gachaBtn=document.getElementById('gachaBtn');
@@ -535,6 +593,15 @@ const GENERAL_REVEAL={
   guanyu:{name:'關羽',title:'義薄雲天・威震華夏',color:'#3c8a5e'},
   liubei:{name:'劉備',title:'仁德之主・親征三軍',color:'#e8bc4e'},
   fivetigers:{name:'五虎上將',title:'五虎齊聚・威震天下',color:'#e8bc4e'}
+};
+const SKILL_INFO={
+  zhaoyun:{name:'龍膽突擊',desc:'對該排所有敵人造成 80% 攻擊力傷害'},
+  huangzhong:{name:'百步穿楊',desc:'對該排所有敵人造成 70% 攻擊力傷害'},
+  zhangfei:{name:'長坂怒吼',desc:'對該排所有敵人造成 60% 傷害，並回復自身 20% 生命'},
+  machao:{name:'連環突刺',desc:'連續突刺該排最近 3 名敵人，各造成 50% 傷害'},
+  guanyu:{name:'青龍偃月',desc:'對最近敵人造成 120% 重擊，並回復自身 15% 生命'},
+  liubei:{name:'仁德號令',desc:'全軍回復 15% 生命，並獲得 4 秒攻速加成'},
+  fivetigers:{name:'五虎齊發',desc:'對全場所有敵人造成 40% 攻擊力傷害'}
 };
 function showGeneralReveal(key){
   if(!GENERAL_REVEAL[key]) return;
@@ -849,6 +916,16 @@ function findFiveTigers(){
   }
   return FIVE_TIGERS_KEYS.every(k=>found[k]) ? found : null;
 }
+function updateEnemyRoster(){
+  const counts={};
+  const order=[];
+  enemies.forEach(e=>{
+    if(e.isBoss) return; // boss already gets its own prominent label above its token
+    if(!counts[e.displayName]) order.push(e.displayName);
+    counts[e.displayName]=(counts[e.displayName]||0)+1;
+  });
+  enemyRosterEl.textContent = order.map(name=> name+(counts[name]>1? '×'+counts[name] : '')).join('　');
+}
 function triggerFiveTigersFusion(){
   const found=findFiveTigers();
   if(!found) return;
@@ -860,7 +937,7 @@ function triggerFiveTigersFusion(){
   });
   const fusion=makeUnit('soldier',4);
   fusion.evolved=true; fusion.star=3; fusion.isFiveTigers=true;
-  fusion.maxHp=Math.round(FIVE_TIGERS_HP_FLAT*gHpMult); fusion.hp=fusion.maxHp; fusion.atk=Math.round(70*GENERAL_ATK_MULT*10)/10; fusion.intv=0.6; fusion.range=1.8; fusion.pierce=true;
+  fusion.maxHp=Math.round(FIVE_TIGERS_HP_FLAT*gHpMult); fusion.hp=fusion.maxHp; fusion.atk=Math.round(70*GENERAL_ATK_MULT*1.2*10)/10; fusion.intv=0.6; fusion.range=1.8; fusion.pierce=true;
   fusion.mana=0; fusion.maxMana=100; fusion.buffTimer=0;
   fusion.popT=0.6;
   units[fusion.id]=fusion;
@@ -902,12 +979,10 @@ function castSkill(u){
       rowEnemies.forEach(e=>hit(e,4));
       floatText(pos.x,pos.y-38*SCALE,'龍膽突擊！','#8fa8ff');
       break;
-    case 'archer': { // 黃忠 - 百步穿楊：單體重擊
-      rowEnemies.sort((a,b)=>Math.abs(a.x-pos.x)-Math.abs(b.x-pos.x));
-      if(rowEnemies[0]) hit(rowEnemies[0],6);
+    case 'archer': // 黃忠 - 百步穿楊：全排齊射
+      rowEnemies.forEach(e=>hit(e,3.5));
       floatText(pos.x,pos.y-38*SCALE,'百步穿楊！','#8fa8ff');
       break;
-    }
     case 'spear': // 張飛 - 長坂怒吼：全排傷害＋自癒
       rowEnemies.forEach(e=>hit(e,3));
       u.hp=Math.min(u.maxHp,u.hp+u.maxHp*0.2);
@@ -969,6 +1044,7 @@ function startNextWave(){
   waveState='spawning';
   spawnTimer=0.2;
 }
+const ENEMY_BOSS_ATK_MULT=1.2; // enemy generals (bosses) deal +20% attack
 function spawnEnemy(def){
   const t=ENEMY_TYPES[def.typeKey];
   const bossOrElite = def.typeKey==='boss'||def.typeKey==='elite';
@@ -977,11 +1053,12 @@ function spawnEnemy(def){
   const flavor = def.typeKey==='boss'
     ? {name:stage.boss.name, glyph:stage.boss.glyph, color:'#2a0f22'}
     : factionSet[def.typeKey];
+  const atkMult = def.typeKey==='boss'? ENEMY_BOSS_ATK_MULT : 1;
   const e={
     id:newId(), typeKey:def.typeKey, row:def.row,
     x: laneRightEdge+30*SCALE,
     hp: Math.round(t.hp*scale),
-    maxHp:0, atk: Math.round(t.atk*scale),
+    maxHp:0, atk: Math.round(t.atk*scale*atkMult),
     speed:t.speed*SCALE, intv:t.intv, ranged:t.ranged, color:flavor.color,
     displayName:flavor.name, displayGlyph:flavor.glyph,
     atkTimer:0, isElite:def.typeKey==='elite', isBoss:def.typeKey==='boss', flashT:0
@@ -1056,6 +1133,7 @@ function update(dt){
   if(flashTime>0) flashTime-=dt;
   if(rallyTimer>0){ rallyTimer-=dt; if(rallyTimer<=0) updateRallyUI(); }
   fusionBanner.classList.toggle('show', !!findFiveTigers());
+  updateEnemyRoster();
   if(revealFx){ revealFx.t+=dt; if(revealFx.t>=revealFx.dur) revealFx=null; }
   if(enemyRevealFx){ enemyRevealFx.t+=dt; if(enemyRevealFx.t>=enemyRevealFx.dur) enemyRevealFx=null; }
 
@@ -1130,10 +1208,12 @@ function update(dt){
         e.x -= e.speed*dt;
         if(e.x<stopX) e.x=stopX;
       }
-      const atEngage = idx===0 && e.x<=stopX+1;
+      const atEngage = e.x<=stopX+1;
       if(atEngage){
         if(blockerUnit){
-          if(e.atkTimer>0){ e.atkTimer-=dt; }
+          if(blockerUnit.hp<=0){
+            // blocker was already killed by another stacked enemy earlier this same frame - nothing more to hit
+          } else if(e.atkTimer>0){ e.atkTimer-=dt; }
           else {
             e.atkTimer=e.intv;
             blockerUnit.hp-=e.atk; blockerUnit.flashT=0.2;
@@ -1735,18 +1815,82 @@ function hitGridCell(x,y){
   }
   return null;
 }
+function hitEnemyToken(x,y){
+  for(const e of enemies){
+    const ey=rowY(e.row);
+    const r = e.isBoss? 24*SCALE : e.isElite? 19*SCALE : 14*SCALE;
+    const dx=x-e.x, dy=y-ey;
+    if(dx*dx+dy*dy <= (r*1.35)*(r*1.35)) return e;
+  }
+  return null;
+}
+function hideUnitInfo(){ unitInfoPanel.classList.add('hidden'); }
+let uipTimer=null;
+function armUipAutoHide(){
+  if(uipTimer) clearTimeout(uipTimer);
+  uipTimer=setTimeout(hideUnitInfo, 7000);
+}
+function showPlayerUnitInfo(u){
+  if(!u) return;
+  uipName.textContent = displayName(u) + (u.evolved? ' '+'★'.repeat(u.star) : (u.typeKey==='farmer'?'':' Lv.'+u.level));
+  uipAtk.textContent = u.atk;
+  uipHp.textContent = Math.max(0,Math.round(u.hp))+' / '+u.maxHp;
+  const hasCombat = u.atk>0;
+  uipIntvRow.classList.toggle('hidden', !hasCombat);
+  uipRangeRow.classList.toggle('hidden', !hasCombat);
+  if(hasCombat){
+    uipIntv.textContent = u.intv.toFixed(2)+' 秒';
+    uipRange.textContent = u.range.toFixed(2)+' 格';
+  }
+  const isFarmerLike = u.typeKey==='farmer';
+  uipIncomeRow.classList.toggle('hidden', !isFarmerLike);
+  if(isFarmerLike) uipIncome.textContent = '+'+(u.income||0)+' / 秒';
+  uipManaRow.classList.toggle('hidden', !u.evolved);
+  uipSkillBox.classList.toggle('hidden', !u.evolved);
+  if(u.evolved){
+    uipMana.textContent = Math.floor(u.mana||0)+' / '+(u.maxMana||100);
+    const skillKey = u.isFiveTigers? 'fivetigers' : (UNIT_TYPES[u.typeKey] && UNIT_TYPES[u.typeKey].general.key);
+    const info = SKILL_INFO[skillKey];
+    if(info){ uipSkillName.textContent=info.name; uipSkillDesc.textContent=info.desc; }
+  }
+  unitInfoPanel.classList.remove('hidden');
+  armUipAutoHide();
+}
+function showEnemyInfo(e){
+  if(!e) return;
+  uipName.textContent = e.displayName + (e.isBoss? '（頭目）' : e.isElite? '（精銳）' : '');
+  uipAtk.textContent = e.atk;
+  uipHp.textContent = Math.max(0,Math.round(e.hp))+' / '+e.maxHp;
+  uipIntvRow.classList.remove('hidden');
+  uipIntv.textContent = e.intv.toFixed(2)+' 秒';
+  uipRangeRow.classList.remove('hidden');
+  uipRange.textContent = e.ranged? '遠程' : '近戰';
+  uipIncomeRow.classList.add('hidden');
+  uipManaRow.classList.add('hidden');
+  uipSkillBox.classList.add('hidden');
+  unitInfoPanel.classList.remove('hidden');
+  armUipAutoHide();
+}
+uipCloseBtn.addEventListener('click', hideUnitInfo);
+
 canvas.addEventListener('pointerdown',(e)=>{
   if(phase!=='battle'||modal) return;
   const x=e.clientX,y=e.clientY;
   const bi=hitBenchSlot(x,y);
   if(bi>=0 && bench[bi]){
+    hideUnitInfo();
     dragging={source:{type:'bench',index:bi}, unit:units[bench[bi]], x, y, startX:x, startY:y, moved:false, holdTime:0};
     return;
   }
   const gc=hitGridCell(x,y);
   if(gc && grid[gc.row][gc.col]){
+    hideUnitInfo();
     dragging={source:{type:'grid',row:gc.row,col:gc.col}, unit:units[grid[gc.row][gc.col]], x, y, startX:x, startY:y, moved:false, holdTime:0};
+    return;
   }
+  const en=hitEnemyToken(x,y);
+  if(en){ showEnemyInfo(en); return; }
+  hideUnitInfo(); // tapped empty space -> close any open info card
 });
 canvas.addEventListener('pointermove',(e)=>{
   if(!dragging) return;
@@ -1758,6 +1902,12 @@ canvas.addEventListener('pointermove',(e)=>{
 });
 window.addEventListener('pointerup',(e)=>{
   if(!dragging) return;
+  if(!dragging.moved){
+    // a quick tap (no drag, released before the sell-hold threshold) -> inspect the unit instead of no-op
+    showPlayerUnitInfo(dragging.unit);
+    dragging=null;
+    return;
+  }
   const gc=hitGridCell(e.clientX,e.clientY);
   let target = gc? {type:'grid',row:gc.row,col:gc.col} : null;
   if(!target){
