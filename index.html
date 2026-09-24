@@ -155,6 +155,17 @@
 
   .text-link{margin-top:14px;background:none;border:none;color:var(--parchment-dim);
     font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px;}
+  .event-btn{position:relative;margin-top:12px;background:linear-gradient(180deg,#3a2c5a,#1c1238);
+    border:1.5px solid #b89aef;border-radius:20px;color:#e8d8ff;font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei","Heiti TC",serif;
+    font-weight:700;font-size:13px;letter-spacing:1px;padding:9px 20px;cursor:pointer;
+    box-shadow:0 0 14px rgba(184,154,239,.4);animation:eventGlow 2.2s ease-in-out infinite;}
+  @keyframes eventGlow{
+    0%,100%{box-shadow:0 0 10px rgba(184,154,239,.3);}
+    50%{box-shadow:0 0 22px rgba(184,154,239,.7);}
+  }
+  .event-badge{display:inline-block;margin-left:6px;background:#9fd48a;color:#123a0a;
+    font-size:10px;font-weight:900;border-radius:8px;padding:1px 7px;letter-spacing:0;}
+  .event-badge.hidden{display:none;}
   .sc-label{font-size:11.5px;color:var(--parchment-dim);margin-bottom:5px;text-align:left;}
   .sc-area{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(200,153,47,.3);border-radius:4px;
     color:var(--parchment);font-size:11px;font-family:monospace;padding:8px;resize:none;box-sizing:border-box;}
@@ -263,6 +274,7 @@
       <button class="banner-btn" id="goStageBtn">選 擇 關 卡</button>
       <button class="banner-btn ghost" id="homeShopBtn">校 場 強 化</button>
     </div>
+    <button class="event-btn" id="eventStageBtn">🌕 中秋活動・中秋夜襲 <span class="event-badge hidden" id="eventClearedBadge">已通關</span></button>
     <button class="text-link" id="saveCodeBtn">匯出／匯入存檔</button>
   </div></div>
 
@@ -271,6 +283,14 @@
     <h1 class="title-main" style="font-size:clamp(24px,6vw,36px);">關 卡 選 擇</h1>
     <div class="stage-list" id="stageList"></div>
     <button class="banner-btn ghost" id="backHomeBtn">返 回</button>
+  </div></div>
+
+  <div id="eventDiffScreen" class="overlay hidden"><div class="overlay-inner">
+    <div class="eyebrow">🌕 限 時 活 動</div>
+    <h1 class="title-main" style="font-size:clamp(24px,6vw,36px);">中 秋 夜 襲</h1>
+    <p class="desc" style="margin-bottom:10px;">月宮迎敵・嫦娥后羿・選擇難度</p>
+    <div class="stage-list" id="eventDiffList"></div>
+    <button class="banner-btn ghost" id="backHomeFromEventBtn">返 回</button>
   </div></div>
 
   <div id="endScreen" class="overlay hidden"><div class="overlay-inner">
@@ -378,6 +398,11 @@ const upgradeList=document.getElementById('upgradeList');
 const gachaResult=document.getElementById('gachaResult');
 const gachaDrawBtn=document.getElementById('gachaDrawBtn');
 const saveCodeBtn=document.getElementById('saveCodeBtn');
+const eventStageBtn=document.getElementById('eventStageBtn');
+const eventClearedBadge=document.getElementById('eventClearedBadge');
+const eventDiffScreen=document.getElementById('eventDiffScreen');
+const eventDiffList=document.getElementById('eventDiffList');
+const backHomeFromEventBtn=document.getElementById('backHomeFromEventBtn');
 const saveCodePanel=document.getElementById('saveCodePanel');
 const saveCodeOut=document.getElementById('saveCodeOut');
 const saveCodeIn=document.getElementById('saveCodeIn');
@@ -464,6 +489,19 @@ const STAGES=[
 let currentStageIdx=0;
 let stage=STAGES[0];
 let STAGE_WAVES=stage.waves;
+
+// ===================== Event stage (separate from the chapter campaign) =====================
+const EVENT_STAGES=[
+  {id:'zhongqiu_easy', diffName:'簡單', name:'中秋夜襲', sub:'月宮迎敵・嫦娥后羿', waves:16, mult:3.5, faction:'zhongqiu',
+    boss:{name:'后羿', glyph:'羿', quote:'略施薄懲，讓爾等知曉月宮不可輕犯！'}, meritBonus:40},
+  {id:'zhongqiu_normal', diffName:'普通', name:'中秋夜襲', sub:'月宮迎敵・嫦娥后羿', waves:24, mult:6.0, faction:'zhongqiu',
+    boss:{name:'后羿', glyph:'羿', quote:'昔日射落九日，區區月宮之敵，何足道哉！'}, meritBonus:80},
+  {id:'zhongqiu_hard', diffName:'困難', name:'中秋夜襲', sub:'月宮迎敵・嫦娥后羿', waves:32, mult:9.5, faction:'zhongqiu',
+    boss:{name:'后羿', glyph:'羿', quote:'神箭之下，爾等插翅難逃！'}, meritBonus:150}
+];
+let isEventStage=false;
+let currentEventIdx=1; // which EVENT_STAGES entry is active/was last played
+let eventStageCleared=[false,false,false], eventBestWave=[0,0,0];
 
 const UNIT_TYPES={
   soldier:{name:'步兵',glyph:'兵',hp:44,atk:14,intv:1.0,range:0.8,color:'#8a6a3a',general:{key:'zhaoyun',name:'趙雲',glyph:'趙'}},
@@ -560,6 +598,13 @@ const FACTION_ENEMY_SETS={
     raider:{name:'西涼遺騎',glyph:'遺',color:'#6a3a1a'},
     heavy:{name:'宛城重甲',glyph:'甲',color:'#3a2a1a'},
     elite:{name:'宛城驍將',glyph:'驍',color:'#5a3a1a'}
+  },
+  zhongqiu:{
+    foot:{name:'月兔',glyph:'兔',color:'#a89a82'},
+    archer:{name:'廣寒弓手',glyph:'弓',color:'#5a6a9a'},
+    raider:{name:'玉兔輕影',glyph:'影',color:'#8a7a5a'},
+    heavy:{name:'吳剛',glyph:'剛',color:'#5a3a12'},
+    elite:{name:'嫦娥',glyph:'娥',color:'#8a4a8a'}
   }
 };
 
@@ -574,7 +619,7 @@ speedBtn.addEventListener('click',()=>{
 });
 let modal=null; // 'shop'|'gacha'|null
 let units={}, grid, bench;
-let enemies=[], particles=[], floaters=[], projectiles=[];
+let enemies=[], particles=[], floaters=[], projectiles=[], weaponFx=[];
 let hearts=MAX_HEARTS, grain=180, tokens=0;
 let meritTotal=0;
 let stageProgress=STAGES.map(()=>({cleared:false,bestWave:0}));
@@ -744,8 +789,8 @@ function initBoard(){
 function resetGame(){
   units={};
   initBoard();
-  enemies=[]; particles=[]; floaters=[]; projectiles=[];
-  stage=STAGES[currentStageIdx]; STAGE_WAVES=stage.waves;
+  enemies=[]; particles=[]; floaters=[]; projectiles=[]; weaponFx=[];
+  stage= isEventStage? EVENT_STAGES[currentEventIdx] : STAGES[currentStageIdx]; STAGE_WAVES=stage.waves;
   hearts=MAX_HEARTS; grain=180; tokens=0; runMeritGain=0;
   wave=0; waveState='idle'; prepTimer=0; spawnQueue=[]; spawnTimer=0;
   rallyCharges=2; rallyTimer=0;
@@ -771,6 +816,7 @@ function updateResUI(){
   waveNumEl.textContent=Math.min(wave,STAGE_WAVES);
   recruitCostLbl.textContent=recruitCost()+' 糧';
   recruitBtn.classList.toggle('disabled', grain<recruitCost() || benchFull());
+  eventClearedBadge.classList.toggle('hidden', !eventStageCleared.some(Boolean));
 }
 function updateRallyUI(){
   rallyBadge.textContent=rallyCharges;
@@ -1093,9 +1139,14 @@ function waveClearCheck(){
 
 function triggerVictory(){
   phase='victory';
-  const sp=stageProgress[currentStageIdx];
-  if(!sp.cleared){ sp.cleared=true; meritTotal+=50; runMeritGain+=50; }
-  sp.bestWave=STAGE_WAVES;
+  if(isEventStage){
+    if(!eventStageCleared[currentEventIdx]){ eventStageCleared[currentEventIdx]=true; const bonus=EVENT_STAGES[currentEventIdx].meritBonus; meritTotal+=bonus; runMeritGain+=bonus; }
+    eventBestWave[currentEventIdx]=STAGE_WAVES;
+  } else {
+    const sp=stageProgress[currentStageIdx];
+    if(!sp.cleared){ sp.cleared=true; meritTotal+=50; runMeritGain+=50; }
+    sp.bestWave=STAGE_WAVES;
+  }
   persistSave();
   endEyebrow.textContent='戰 報';
   endTitle.textContent='凱旋而歸';
@@ -1106,9 +1157,13 @@ function triggerVictory(){
 }
 function triggerDefeat(){
   phase='defeat';
-  const sp=stageProgress[currentStageIdx];
   const reached=Math.max(0,wave-1);
-  if(reached>sp.bestWave) sp.bestWave=reached;
+  if(isEventStage){
+    if(reached>eventBestWave[currentEventIdx]) eventBestWave[currentEventIdx]=reached;
+  } else {
+    const sp=stageProgress[currentStageIdx];
+    if(reached>sp.bestWave) sp.bestWave=reached;
+  }
   persistSave();
   endEyebrow.textContent='戰 報';
   endTitle.textContent='防線崩潰';
@@ -1160,6 +1215,7 @@ function update(dt){
     if(u.row<0) continue; // only grid units fight
     if(u.flashT>0) u.flashT-=dt;
     if(u.popT>0) u.popT-=dt;
+    if(u.lungeT>0) u.lungeT-=dt;
     if(u.buffTimer>0) u.buffTimer-=dt;
     if(u.evolved){
       u.mana=Math.min(u.maxMana,(u.mana||0)+MANA_REGEN*dt);
@@ -1174,10 +1230,11 @@ function update(dt){
     const targets=rowEnemies.filter(e=>Math.abs(e.x-myPos.x)<=rangePx).slice(0,u.pierce?2:1);
     if(targets.length===0) continue;
     u.atkTimer = u.intv/gAtkSpeedMult/(rallyTimer>0?2:1)/(u.buffTimer>0?1.3:1);
+    const wKind=weaponKindFor(u);
     targets.forEach((e,i)=>{
       const dmg=Math.round(u.atk*(i===0?1:0.5));
       e.hp-=dmg; e.flashT=0.15;
-      projectiles.push({x1:myPos.x,y1:myPos.y,x2:e.x,y2:e.row!==undefined?rowY(e.row):myPos.y,t:0,dur:0.12,color:u.isFiveTigers?'#e8bc4e':UNIT_TYPES[u.typeKey].color});
+      if(i===0 || wKind==='bow') spawnAttackFx(u, myPos, e, wKind, i===0);
       floatText(e.x, rowY(e.row)-18*SCALE, '-'+dmg, '#e8bc4e');
       if(e.hp<=0) killEnemy(e);
     });
@@ -1237,6 +1294,7 @@ function update(dt){
   });
   floaters=floaters.filter(f=>{ f.life-=dt*1.1; f.y-=dt*38*SCALE; return f.life>0; });
   projectiles=projectiles.filter(p=>{ p.t+=dt; return p.t<p.dur; });
+  weaponFx=weaponFx.filter(f=>{ f.t+=dt; return f.t<f.dur; });
 
   waveClearCheck();
   updateResUI();
@@ -1326,6 +1384,10 @@ function drawUnitTile(u,x,y,w,h,dim){
   const t=UNIT_TYPES[u.typeKey];
   const pop = u.popT>0? 1+ (u.popT/0.35)*0.18 : 1;
   const cx=x+w/2, cy=y+h/2;
+  if(u.lungeT>0 && !dim && u.row>=0){
+    const lp=1-u.lungeT/LUNGE_DUR;
+    ctx.translate(Math.sin(Math.PI*lp)*w*(u.lungeAmp||0.1)*(u.lungeDir||1), 0);
+  }
   ctx.translate(cx,cy); ctx.scale(pop,pop); ctx.translate(-cx,-cy);
 
   const glow = u.evolved;
@@ -1469,6 +1531,208 @@ function drawEnemies(){
     }
   });
 }
+// ===================== Weapon attack animations =====================
+// generals (evolved) wield their signature weapons; ordinary troops use simpler versions of the same weapon family
+const WEAPON_STYLE={
+  soldier:{troop:'sword', general:'spear'},   // 趙雲・龍膽亮銀槍
+  archer:{troop:'bow',    general:'bow'},     // 黃忠・寶雕弓
+  spear:{troop:'spear',   general:'snake'},   // 張飛・丈八蛇矛
+  cavalry:{troop:'lance', general:'lance'},   // 馬超・虎頭湛金槍
+  shield:{troop:'sword',  general:'glaive'},  // 關羽・青龍偃月刀
+  farmer:{troop:null,     general:'twin'}     // 劉備・雙股劍
+};
+const WEAPON_DUR={sword:0.24, spear:0.26, snake:0.28, lance:0.28, glaive:0.36, twin:0.32, tiger:0.4};
+const LUNGE_DUR=0.22;
+function weaponKindFor(u){
+  if(u.isFiveTigers) return 'tiger';
+  const s=WEAPON_STYLE[u.typeKey];
+  return s? ((u.evolved? s.general : s.troop) || 'sword') : 'sword';
+}
+function spawnAttackFx(u, from, e, kind, primary){
+  const tx=e.x, ty=rowY(e.row);
+  const gold=!!u.evolved;
+  if(kind==='bow'){
+    if(primary) weaponFx.push({kind:'bowdraw', x:from.x, y:from.y, tx, ty, t:0, dur:0.24, gold});
+    weaponFx.push({kind:'arrow', x:from.x, y:from.y, tx, ty, t:0, dur:0.2, gold});
+  } else {
+    weaponFx.push({kind, x:from.x, y:from.y, tx, ty, t:0, dur:WEAPON_DUR[kind]||0.25, gold});
+  }
+  if(primary){
+    u.lungeT=LUNGE_DUR;
+    u.lungeDir= kind==='bow'? -1 : 1;                       // archers recoil back, melee lunge forward
+    u.lungeAmp= kind==='lance'? 0.24 : kind==='bow'? 0.05 : kind==='glaive'||kind==='tiger'? 0.08 : 0.12;
+  }
+}
+function easeOutCubic(x){ return 1-Math.pow(1-x,3); }
+
+// --- individual weapon shapes, drawn in local space where +x points toward the enemy ---
+let WS=1; // weapon detail scale, set from the cell size each frame
+function drawSpearShape(len, shaftColor, headColor, opts){
+  const L=len;
+  ctx.lineCap='round';
+  ctx.strokeStyle=shaftColor; ctx.lineWidth=(opts.thick||2.2)*WS;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(L,0); ctx.stroke();
+  if(opts.tassel){ // red horsehair tassel just behind the head
+    ctx.strokeStyle='#c0392b'; ctx.lineWidth=1.3*WS;
+    for(let k=-2;k<=2;k++){ ctx.beginPath(); ctx.moveTo(L-2*WS,0); ctx.quadraticCurveTo(L-8*WS,k*2.2*WS,L-13*WS,k*3.4*WS); ctx.stroke(); }
+  }
+  ctx.fillStyle=headColor;
+  if(opts.snake){ // 丈八蛇矛: wavy serpent blade
+    const hl=16*WS, amp=3*WS;
+    ctx.strokeStyle=headColor; ctx.lineWidth=3*WS; ctx.lineJoin='round';
+    ctx.beginPath(); ctx.moveTo(L,0);
+    for(let k=1;k<=4;k++) ctx.lineTo(L+hl*k/4, (k%2?-amp:amp)*(1-k/5));
+    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L+hl,-2*WS); ctx.lineTo(L+hl+6*WS,0); ctx.lineTo(L+hl,2*WS); ctx.closePath(); ctx.fill();
+  } else { // leaf-shaped spearhead
+    const hl=(opts.headLen||12)*WS, hw=(opts.headW||3.6)*WS;
+    ctx.beginPath(); ctx.moveTo(L,0); ctx.quadraticCurveTo(L+hl*0.45,-hw,L+hl,0); ctx.quadraticCurveTo(L+hl*0.45,hw,L,0); ctx.fill();
+  }
+}
+function drawSwordShape(len, bladeColor, hiltColor){
+  ctx.lineCap='round';
+  ctx.strokeStyle=hiltColor; ctx.lineWidth=2.6*WS;
+  ctx.beginPath(); ctx.moveTo(-5*WS,0); ctx.lineTo(3*WS,0); ctx.stroke();
+  ctx.lineWidth=1.6*WS; ctx.beginPath(); ctx.moveTo(3*WS,-4*WS); ctx.lineTo(3*WS,4*WS); ctx.stroke(); // guard
+  ctx.fillStyle=bladeColor;
+  ctx.beginPath(); ctx.moveTo(3*WS,-1.8*WS); ctx.lineTo(len,-1.1*WS); ctx.lineTo(len+4*WS,0); ctx.lineTo(len,1.1*WS); ctx.lineTo(3*WS,1.8*WS); ctx.closePath(); ctx.fill();
+}
+function drawGlaiveShape(L, gold){ // 青龍偃月刀: long pole, crescent blade, green dragon mouth at the joint
+  ctx.lineCap='round';
+  ctx.strokeStyle= gold? '#5a2a14' : '#4a3020'; ctx.lineWidth=2.6*WS;
+  ctx.beginPath(); ctx.moveTo(-6*WS,0); ctx.lineTo(L,0); ctx.stroke();
+  const g=ctx.createLinearGradient(L,-14*WS,L+24*WS,6*WS);
+  g.addColorStop(0,'#f4f7f8'); g.addColorStop(1,'#9aa6ad');
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.moveTo(L-4*WS, 2*WS);
+  ctx.quadraticCurveTo(L+14*WS, 4*WS, L+24*WS, -16*WS);   // curved cutting edge up to the tip
+  ctx.quadraticCurveTo(L+10*WS, -8*WS, L-2*WS, -7*WS);    // back of the blade
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='rgba(60,70,75,.6)'; ctx.lineWidth=0.8*WS; ctx.stroke();
+  ctx.fillStyle='#3c8a5e'; // dragon mouth fitting
+  ctx.beginPath(); ctx.arc(L-3*WS,-2*WS,3.4*WS,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#9fe0b8'; ctx.beginPath(); ctx.arc(L-2*WS,-3*WS,1*WS,0,Math.PI*2); ctx.fill();
+}
+function drawArcTrail(r, a0, a1, color, width, alpha){
+  if(Math.abs(a1-a0)<0.01) return;
+  ctx.save();
+  ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(0,0,r,Math.min(a0,a1),Math.max(a0,a1)); ctx.stroke();
+  ctx.restore();
+}
+
+function drawWeaponFx(){
+  if(!weaponFx.length) return;
+  const cw=cellRect[0][0].w;
+  WS=cw/40;
+  weaponFx.forEach(f=>{
+    const p=Math.min(1,f.t/f.dur);
+    const ang=Math.atan2(f.ty-f.y, f.tx-f.x);
+    const fade = p>0.75? (1-p)/0.25 : 1;
+    ctx.save();
+    ctx.translate(f.x,f.y);
+    ctx.rotate(ang);
+    ctx.globalAlpha=fade;
+
+    if(f.kind==='glaive' || f.kind==='tiger'){
+      // wide overhead sweep from high-back to low-front, pivoting on the general
+      const a0=-2.0, a1=0.75;
+      const a=a0+(a1-a0)*easeOutCubic(p);
+      const L=(f.kind==='tiger'?1.45:1.25)*cw;
+      if(f.kind==='tiger'){
+        const cols=['#9aa83a','#6fa8dc','#3c8a5e','#c0392b','#b8c4d0']; // 黃忠 趙雲 關羽 張飛 馬超
+        cols.forEach((c,k)=>drawArcTrail(L*(0.7+k*0.08), a0+0.3, a, c, 4*WS, 0.45*fade));
+        drawArcTrail(L*0.95, a0+0.2, a, '#e8bc4e', 12*WS, 0.35*fade);
+      } else {
+        drawArcTrail(L*0.95, a0+0.2, a, '#5fd08a', 11*WS, 0.32*fade);
+        drawArcTrail(L*1.05, a0+0.3, a, '#d8ffe6', 2*WS, 0.6*fade);
+      }
+      ctx.rotate(a);
+      if(f.kind==='tiger'){ ctx.shadowColor='#e8bc4e'; ctx.shadowBlur=12*WS; }
+      drawGlaiveShape(L, true);
+    }
+    else if(f.kind==='sword'){
+      const a0=-1.3, a1=0.9;
+      const a=a0+(a1-a0)*easeOutCubic(p);
+      ctx.translate(cw*0.28,0);
+      drawArcTrail(cw*0.66, a0+0.2, a, '#dfe6ea', 5*WS, 0.3*fade);
+      ctx.rotate(a);
+      drawSwordShape(cw*0.62, '#cfd6da', '#5a3a1a');
+    }
+    else if(f.kind==='twin'){
+      // 雙股劍: one blade slashes down while the other slashes up, crossing in an X
+      const e1=easeOutCubic(Math.min(1,p*1.25)), e2=easeOutCubic(Math.max(0,(p-0.12)*1.25));
+      ctx.translate(cw*0.3,0);
+      drawArcTrail(cw*0.72, -1.2, -1.2+2.1*e1, '#ffe7a0', 5*WS, 0.35*fade);
+      drawArcTrail(cw*0.72, 1.2-2.1*e2, 1.2, '#ffe7a0', 5*WS, 0.35*fade);
+      ctx.save(); ctx.rotate(-1.2+2.1*e1); drawSwordShape(cw*0.66,'#f3e3b0','#7a5a1a'); ctx.restore();
+      ctx.save(); ctx.rotate(1.2-2.1*e2); drawSwordShape(cw*0.66,'#f3e3b0','#7a5a1a'); ctx.restore();
+    }
+    else if(f.kind==='spear' || f.kind==='snake' || f.kind==='lance'){
+      // thrust out fast, pull back slower
+      const ext = p<0.4? easeOutCubic(p/0.4) : 1-easeOutCubic((p-0.4)/0.6);
+      const reach = f.kind==='lance'? 1.0*cw : f.kind==='snake'? 0.95*cw : 0.85*cw;
+      const len = f.kind==='snake'? 1.05*cw : 0.9*cw;
+      const back = -len*0.45 + ext*reach;
+      const shaft = f.kind==='lance'? (f.gold?'#c6952a':'#7a5a34') : f.kind==='snake'? '#2a2420' : (f.gold?'#e4e9ec':'#8a6a3a');
+      const head  = f.kind==='lance'? (f.gold?'#ffe08a':'#cfd6da') : f.kind==='snake'? '#b8c0c6' : '#eef2f4';
+      if(f.kind==='lance' && f.gold){ // speed lines of the charge
+        ctx.save(); ctx.globalAlpha=0.35*fade*ext; ctx.strokeStyle='#e8bc4e'; ctx.lineWidth=1.4*WS;
+        for(let k=-1;k<=1;k++){ ctx.beginPath(); ctx.moveTo(back-18*WS, k*7*WS); ctx.lineTo(back-2*WS, k*7*WS); ctx.stroke(); }
+        ctx.restore();
+      }
+      if(f.gold && ext>0.3){ // afterimage of the thrust
+        ctx.save(); ctx.globalAlpha=0.22*fade; ctx.translate(back-10*WS,0);
+        drawSpearShape(len, shaft, head, {snake:f.kind==='snake', thick:2});
+        ctx.restore();
+      }
+      ctx.translate(back,0);
+      drawSpearShape(len, shaft, head, {
+        snake:f.kind==='snake',
+        tassel: f.kind==='spear' && f.gold,
+        thick: f.kind==='lance'? 2.8 : 2.2,
+        headLen: f.kind==='lance'? 15 : 12,
+        headW: f.kind==='lance'? 4.6 : 3.6
+      });
+    }
+    else if(f.kind==='bowdraw'){
+      // bow held in front of the archer; string drawn back, then released with a snap
+      const pull = p<0.35? p/0.35 : Math.max(0, 1-(p-0.35)/0.1);
+      const bx=cw*0.3, R=cw*0.34;
+      ctx.strokeStyle= f.gold? '#c6952a' : '#7a5a34'; ctx.lineWidth=2.4*WS; ctx.lineCap='round';
+      ctx.beginPath(); ctx.arc(bx-R*0.55, 0, R, -1.05, 1.05); ctx.stroke();
+      const tipX=bx-R*0.55+R*Math.cos(1.05), tipY=R*Math.sin(1.05);
+      ctx.strokeStyle='#e8e0cc'; ctx.lineWidth=0.9*WS;
+      ctx.beginPath(); ctx.moveTo(tipX,-tipY); ctx.lineTo(tipX-pull*R*0.55,0); ctx.lineTo(tipX,tipY); ctx.stroke();
+      if(pull>0.05){ // nocked arrow while drawing
+        ctx.strokeStyle='#8a6a3a'; ctx.lineWidth=1.4*WS;
+        ctx.beginPath(); ctx.moveTo(tipX-pull*R*0.55,0); ctx.lineTo(bx+R*0.5,0); ctx.stroke();
+      }
+    }
+    else if(f.kind==='arrow'){
+      const dist=Math.hypot(f.tx-f.x, f.ty-f.y);
+      const start=cw*0.35;
+      const d=start+(dist-start)*Math.min(1,p/0.85);
+      const al=cw*0.42;
+      if(f.gold){ // golden streak behind 黃忠's arrows
+        const g=ctx.createLinearGradient(d-al*2.2,0,d,0);
+        g.addColorStop(0,'rgba(232,188,78,0)'); g.addColorStop(1,'rgba(232,188,78,.55)');
+        ctx.strokeStyle=g; ctx.lineWidth=3*WS;
+        ctx.beginPath(); ctx.moveTo(d-al*2.2,0); ctx.lineTo(d,0); ctx.stroke();
+      }
+      ctx.translate(d,0);
+      ctx.strokeStyle='#8a6a3a'; ctx.lineWidth=1.5*WS; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(-al,0); ctx.lineTo(0,0); ctx.stroke();
+      ctx.fillStyle= f.gold? '#ffe08a' : '#cfd6da';
+      ctx.beginPath(); ctx.moveTo(6*WS,0); ctx.lineTo(-1*WS,-3*WS); ctx.lineTo(-1*WS,3*WS); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle= f.gold? '#c0392b' : '#ecdfc2'; ctx.lineWidth=1.3*WS; // fletching
+      ctx.beginPath(); ctx.moveTo(-al,0); ctx.lineTo(-al-4*WS,-3*WS); ctx.moveTo(-al,0); ctx.lineTo(-al-4*WS,3*WS);
+      ctx.moveTo(-al+4*WS,0); ctx.lineTo(-al,-3*WS); ctx.moveTo(-al+4*WS,0); ctx.lineTo(-al,3*WS); ctx.stroke();
+    }
+    ctx.restore();
+  });
+}
 function drawProjectiles(){
   projectiles.forEach(p=>{
     const t=p.t/p.dur;
@@ -1529,7 +1793,8 @@ const ENEMY_BUST_CONFIG={
   '袁術':{bgA:'#3a1a3a',bgB:'#100a10',robeColor:'#6a2a6a',robeTrim:'#e8bc4e',skin:'#dcb896',beardColor:'#241a10',beardLen:0.4,headwear:'crown',headColor:'#3a1a3a',headAccent:'#e8bc4e'},
   '橋蕤':{bgA:'#2a1a3a',bgB:'#0a060e',robeColor:'#4a2a5a',robeTrim:'#8a6ac6',skin:'#b5764f',beardColor:'#1a1410',beardLen:0.5,headwear:'helmet',headColor:'#3a1a4a',headAccent:'#8a6ac6'},
   '曹性':{bgA:'#4a1a1a',bgB:'#140606',robeColor:'#6a2a1a',robeTrim:'#a0603a',skin:'#a5673f',beardColor:'#1a1410',beardLen:0.3,headwear:'band',headColor:'#3a1a10'},
-  '許褚':{bgA:'#3a1a1a',bgB:'#100606',robeColor:'#5a2a1a',robeTrim:'#9a5a2a',skin:'#a5673f',beardColor:'#1a1410',beardLen:0.4,headwear:'band',headColor:'#2a1a10',browAngle:true}
+  '許褚':{bgA:'#3a1a1a',bgB:'#100606',robeColor:'#5a2a1a',robeTrim:'#9a5a2a',skin:'#a5673f',beardColor:'#1a1410',beardLen:0.4,headwear:'band',headColor:'#2a1a10',browAngle:true},
+  '后羿':{bgA:'#3a2a0a',bgB:'#100a02',robeColor:'#8a6a1a',robeTrim:'#e8bc4e',skin:'#c9a57a',beardColor:'#241a10',beardLen:0.35,headwear:'band',headColor:'#5a3a10',browAngle:true}
 };
 function drawGenericBust(R,cfg){
   const g=ctx.createRadialGradient(0,-R*0.2,R*0.1,0,0,R);
@@ -1793,6 +2058,7 @@ function draw(){
   drawEnemies();
   drawProjectiles();
   drawGridUnits();
+  drawWeaponFx();
   drawBenchUnits();
   drawDragGhost();
   drawParticles();
@@ -1949,6 +2215,19 @@ modalBackdrop.addEventListener('click',(e)=>{
 });
 
 // ===================== Save code export/import =====================
+function normalizeEventProgress(data){
+  // supports both the current 3-difficulty array format and the older single-difficulty boolean format
+  let cleared=[false,false,false], bestWave=[0,0,0];
+  if(Array.isArray(data.eventStageCleared)){
+    for(let i=0;i<3;i++){
+      cleared[i]=!!data.eventStageCleared[i];
+      bestWave[i]=(Array.isArray(data.eventBestWave) && data.eventBestWave[i])||0;
+    }
+  } else if(data.eventStageCleared){
+    cleared[1]=true; bestWave[1]=data.eventBestWave||0; // legacy save -> treat as "普通" difficulty
+  }
+  return {cleared,bestWave};
+}
 function exportSaveCode(){
   const payload=JSON.stringify({
     meritTotal,
@@ -1956,7 +2235,8 @@ function exportSaveCode(){
       atkSpeed:{lv:upgrades.atkSpeed.lv}, hp:{lv:upgrades.hp.lv},
       income:{lv:upgrades.income.lv}, discount:{lv:upgrades.discount.lv}
     },
-    stageProgress
+    stageProgress,
+    eventStageCleared, eventBestWave
   });
   try{ return btoa(unescape(encodeURIComponent(payload))); }
   catch(e){ return ''; }
@@ -1978,6 +2258,8 @@ function importSaveCode(code){
         stageProgress[i].bestWave=p.bestWave||0;
       }
     });
+    const ep=normalizeEventProgress(data);
+    eventStageCleared=ep.cleared; eventBestWave=ep.bestWave;
     applyUpgradeMults();
     updateResUI();
     persistSave();
@@ -2080,6 +2362,8 @@ async function loadSave(){
           }
         });
       }
+      const ep=normalizeEventProgress(data);
+      eventStageCleared=ep.cleared; eventBestWave=ep.bestWave;
     }
   }catch(e){ /* no save yet, or storage unavailable - defaults stand */ }
   applyUpgradeMults();
@@ -2093,7 +2377,8 @@ async function persistSave(){
       atkSpeed:{lv:upgrades.atkSpeed.lv}, hp:{lv:upgrades.hp.lv},
       income:{lv:upgrades.income.lv}, discount:{lv:upgrades.discount.lv}
     },
-    stageProgress
+    stageProgress,
+    eventStageCleared, eventBestWave
   });
   try{
     if(window.storage){
@@ -2125,8 +2410,36 @@ function renderStageList(){
     });
   });
 }
+function renderEventDiffList(){
+  let html='';
+  EVENT_STAGES.forEach((s,i)=>{
+    html+='<div class="stage-card" data-diff="'+i+'">'
+      +'<div><div class="stage-name">'+s.diffName+'</div>'
+      +'<div class="stage-sub">'+s.sub+'</div></div>'
+      +'<div class="stage-meta">'+(eventStageCleared[i]?'<span class="cleared-tag">已平定</span>':'')+s.waves+' 波</div>'
+      +'</div>';
+  });
+  eventDiffList.innerHTML=html;
+  eventDiffList.querySelectorAll('.stage-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const i=parseInt(card.dataset.diff,10);
+      startEventStage(i);
+    });
+  });
+}
 function startStage(i){
   currentStageIdx=i;
+  isEventStage=false;
+  stageScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  startScreen.classList.add('hidden');
+  phase='battle';
+  resetGame();
+}
+function startEventStage(idx){
+  currentEventIdx=idx;
+  isEventStage=true;
+  eventDiffScreen.classList.add('hidden');
   stageScreen.classList.add('hidden');
   endScreen.classList.add('hidden');
   startScreen.classList.add('hidden');
@@ -2142,13 +2455,27 @@ backHomeBtn.addEventListener('click',()=>{
   stageScreen.classList.add('hidden');
   startScreen.classList.remove('hidden');
 });
+backHomeFromEventBtn.addEventListener('click',()=>{
+  eventDiffScreen.classList.add('hidden');
+  startScreen.classList.remove('hidden');
+});
 backToStageBtn.addEventListener('click',()=>{
   endScreen.classList.add('hidden');
-  renderStageList();
-  stageScreen.classList.remove('hidden');
+  if(isEventStage){
+    renderEventDiffList();
+    eventDiffScreen.classList.remove('hidden');
+  } else {
+    renderStageList();
+    stageScreen.classList.remove('hidden');
+  }
 });
 homeShopBtn.addEventListener('click',()=>openModal('shop'));
-retryBtn.addEventListener('click',()=>{ startStage(currentStageIdx); });
+retryBtn.addEventListener('click',()=>{ if(isEventStage) startEventStage(currentEventIdx); else startStage(currentStageIdx); });
+eventStageBtn.addEventListener('click',()=>{
+  startScreen.classList.add('hidden');
+  renderEventDiffList();
+  eventDiffScreen.classList.remove('hidden');
+});
 
 // ===================== Loop =====================
 function loop(ts){
